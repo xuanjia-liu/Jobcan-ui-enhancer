@@ -1,0 +1,2052 @@
+:root {
+  /* Color Palette - Based on Design Guide */
+  --color-primary: #0066DD;
+  --color-primary-light: #4D94E9;
+  --color-primary-dark: #0047AB;
+  
+  --color-secondary: #6C757D;
+  --color-secondary-light: #ADB5BD;
+  --color-secondary-dark: #495057;
+  
+  --color-accent: #28A745;
+  --color-accent-light: #5CC072;
+  --color-accent-dark: #1E7E34;
+  
+  --color-danger: #DC3545;
+  --color-danger-light: #F8D7DA;
+  --color-danger-dark: #A71D2A;
+  
+  --color-warning: #FFC107;
+  --color-warning-light: #FFF3CD;
+  --color-warning-dark: #D39E00;
+  
+  --color-info: #17A2B8;
+  --color-success: #28A745;
+  
+  --color-background: #FFFFFF;
+  --color-surface: #F8F9FA;
+  --color-card: #FFFFFF;
+  
+  --color-text-primary: #212529;
+  --color-text-secondary: #6C757D;
+  --color-text-disabled: #ADB5BD;
+  --color-text-on-primary: #FFFFFF;
+  --color-text-on-accent: #FFFFFF;
+  
+  --color-border: #DEE2E6;
+  --color-border-light: #E9ECEF;
+  --color-divider: #E9ECEF;
+  
+  /* Shadow */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-lg: 0 4px 6px rgba(0,0,0,0.05);
+  
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  
+  /* Spacing - Creating a consistent spacing scale */
+  --space-xs: 0.25rem;   /* 4px */
+  --space-sm: 0.5rem;    /* 8px */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+  --space-2xl: 3rem;     /* 48px */
+  
+  /* Border Radius */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-full: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
+}
+
+/* Base styles with new design system */
+.jobcan-enhanced {
+  font-family: var(--font-family);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  background-color: var(--color-background);
+}
+
+/* Jobcan UI Enhancer - Main Styles */
+.jobcan-enhanced {
+  --primary-color: #0078ff;
+  --primary-light: #e6f2ff;
+  --secondary-color: #2c3e50;
+  --accent-color: #3498db;
+  --success-color: #2ecc71;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+  --bg-color: #f8f9fa;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --text-secondary: #6c757d;
+  --border-color: #e9ecef;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --border-radius: 12px;
+  --transition: all 0.3s ease;
+}
+
+/* Global styles */
+.jobcan-enhanced body {
+  background: linear-gradient(135deg, #e6f2ff 0%, #f8f9fa 100%);
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  color: var(--text-color);
+  line-height: 1.5;
+  padding: 0;
+  margin: 0;
+}
+
+/* Header */
+.jobcan-enhanced #header,
+.jobcan-enhanced .headerArea {
+  background: linear-gradient(90deg, rgb(0, 102, 204) 0%, rgb(26, 133, 255) 100%);
+  border-bottom: none;
+  box-shadow: var(--shadow);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 16px 16px;
+}
+
+.jobcan-enhanced #header img,
+.jobcan-enhanced .headerArea img {
+  height: 28px;
+  filter: brightness(1.2);
+}
+
+/* Navigation */
+.jobcan-enhanced #sidemenu,
+.jobcan-enhanced .sidemenu,
+.jobcan-enhanced .jbc-sidemenu {
+  background-color: var(--card-bg);
+  box-shadow: var(--shadow);
+  border-radius: var(--border-radius);
+  margin: 16px;
+  padding: 16px 0;
+  overflow: hidden;
+  /* Ensure only one sidemenu is visible */
+  position: relative;
+  z-index: 10;
+  /* Add transition for smooth sliding */
+  transition: all 0.3s ease;
+  left: 0;
+  width: 256px;
+}
+
+/* Sidemenu closed state */
+.jobcan-enhanced .jbc-sidemenu.side-closed,
+.jobcan-enhanced #sidemenu.side-closed,
+.jobcan-enhanced .sidemenu.side-closed {
+  overflow: hidden;
+  left: -256px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Ensure the content shifts when menu closes */
+.jobcan-enhanced .contentsArea,
+.jobcan-enhanced #main-content {
+  transition: margin-left 0.3s ease;
+  margin-left: 272px; /* 256px menu width + 16px margin */
+}
+
+.jobcan-enhanced .side-closed ~ .contentsArea,
+.jobcan-enhanced .side-closed ~ #main-content {
+  margin-left: 48px; /* Width of the collapsed menu button */
+}
+
+/* Collapsed/closed sidemenu styling */
+.jobcan-enhanced #sidemenu-closed,
+.jobcan-enhanced .jbc-sidemenu-closed {
+  background-color: var(--card-bg);
+  box-shadow: var(--shadow);
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  position: fixed;
+  top: 80px;
+  left: 0;
+  width: 48px;
+  z-index: 10;
+  padding: 0;
+  overflow: hidden;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.jobcan-enhanced #sidemenu-closed .btn,
+.jobcan-enhanced .jbc-sidemenu-closed .btn,
+.jobcan-enhanced .jbc-sidemenu-btn {
+  background-color: transparent;
+  color: var(--secondary-color);
+  border: none;
+  border-radius: 0;
+  padding: 12px;
+  margin: 0;
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none;
+  transition: var(--transition);
+}
+
+.jobcan-enhanced #sidemenu-closed .btn:hover,
+.jobcan-enhanced .jbc-sidemenu-closed .btn:hover,
+.jobcan-enhanced .jbc-sidemenu-btn:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  transform: none;
+  box-shadow: none;
+}
+
+.jobcan-enhanced #sidemenu-closed svg,
+.jobcan-enhanced .jbc-sidemenu-closed svg {
+  fill: var(--secondary-color);
+  transition: var(--transition);
+}
+
+.jobcan-enhanced #sidemenu-closed .btn:hover svg,
+.jobcan-enhanced .jbc-sidemenu-closed .btn:hover svg {
+  fill: var(--primary-color);
+}
+
+/* Fix for duplicate sidemenus */
+.jobcan-enhanced .sidemenu + .sidemenu,
+.jobcan-enhanced #sidemenu + #sidemenu,
+.jobcan-enhanced .sidemenu.hidden,
+.jobcan-enhanced #sidemenu.hidden,
+.jobcan-enhanced .sidemenu[style*="display: none"],
+.jobcan-enhanced #sidemenu[style*="display: none"] {
+  display: none !important;
+}
+
+/* Ensure proper display for open/closed states */
+.jobcan-enhanced .menuArea[style*="display: none"] + .menuArea,
+.jobcan-enhanced .menuArea.closed + .menuArea {
+  display: none !important;
+}
+
+.jobcan-enhanced .sidebar-collapsed .sidemenu,
+.jobcan-enhanced .sidebar-hidden .sidemenu,
+.jobcan-enhanced .menu-collapsed .sidemenu {
+  display: none !important;
+}
+
+/* When sidemenu is closed manually */
+.jobcan-enhanced .sidemenu.closed,
+.jobcan-enhanced #sidemenu.closed {
+  display: none !important;
+}
+
+.jobcan-enhanced #sidemenu a,
+.jobcan-enhanced .sidemenu a,
+.jobcan-enhanced .menuArea a {
+  color: var(--secondary-color);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  transition: var(--transition);
+  text-decoration: none;
+  margin: 4px 8px;
+  border-radius: 8px;
+}
+
+.jobcan-enhanced #sidemenu a:hover,
+.jobcan-enhanced .sidemenu a:hover,
+.jobcan-enhanced .menuArea a:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.jobcan-enhanced #sidemenu a.active,
+.jobcan-enhanced .sidemenu a.active,
+.jobcan-enhanced .menuArea a.active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Dropdown menus - fix visibility issues */
+.jobcan-enhanced .dropdown,
+.jobcan-enhanced .dropdown-menu,
+.jobcan-enhanced .dropdown-content,
+.jobcan-enhanced ul.submenu,
+.jobcan-enhanced .nav-submenu {
+  position: relative;
+  z-index: 1000 !important;
+}
+
+.jobcan-enhanced .dropdown-menu,
+.jobcan-enhanced .dropdown-content,
+.jobcan-enhanced ul.submenu,
+.jobcan-enhanced .nav-submenu {
+  background-color: var(--card-bg) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  overflow: visible !important;
+  max-height: none !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Navigation submenu styling */
+.jobcan-enhanced .nav-item.has-submenu > ul,
+.jobcan-enhanced .menu-item.has-children > ul {
+  position: relative !important;
+  left: 0 !important;
+  margin-left: 0 !important;
+  width: 100% !important;
+  max-height: 1000px !important;
+  overflow: visible !important;
+  background-color: white !important;
+  border-radius: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+}
+
+.jobcan-enhanced .nav-item.has-submenu > ul > li > a,
+.jobcan-enhanced .menu-item.has-children > ul > li > a {
+  padding: 12px 24px !important;
+  font-size: 14px !important;
+  color: var(--text-color) !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+.jobcan-enhanced .nav-item.has-submenu > ul > li > a.active,
+.jobcan-enhanced .menu-item.has-children > ul > li > a.active {
+  background-color: transparent !important;
+  color: var(--primary-color) !important;
+}
+
+.jobcan-enhanced .nav-item.has-submenu > ul > li > a:hover,
+.jobcan-enhanced .menu-item.has-children > ul > li > a:hover {
+  background-color: rgba(0, 120, 255, 0.05) !important;
+}
+
+/* Selected menu item styling, like in the reference image */
+.jobcan-enhanced .sidemenu a.selected,
+.jobcan-enhanced .menu-item.selected > a,
+.jobcan-enhanced .nav-item.selected > a {
+  background-color: var(--primary-light) !important;
+  color: var(--primary-color) !important;
+  font-weight: 500 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+}
+
+/* Main content area */
+.jobcan-enhanced #main-content,
+.jobcan-enhanced .contentsArea,
+.jobcan-enhanced #content {
+  background-color: transparent;
+  padding: 16px;
+}
+
+/* Cards */
+.jobcan-enhanced .card,
+.jobcan-enhanced .box,
+.jobcan-enhanced .box-default,
+.jobcan-enhanced .panel {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  border: none;
+  margin-bottom: 24px;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.jobcan-enhanced .card:hover,
+.jobcan-enhanced .box:hover,
+.jobcan-enhanced .box-default:hover,
+.jobcan-enhanced .panel:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.jobcan-enhanced .card-header,
+.jobcan-enhanced .box-header,
+.jobcan-enhanced .panel-header {
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 20px;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--secondary-color);
+}
+
+.jobcan-enhanced .card-body,
+.jobcan-enhanced .box-body,
+.jobcan-enhanced .panel-body {
+  padding: 20px;
+}
+
+/* Time display (clock) */
+.jobcan-enhanced #clock,
+.jobcan-enhanced #display-time {
+  font-size: 72px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--secondary-color);
+  margin: 32px 0 40px;
+  font-family: 'Roboto', 'Arial', sans-serif;
+  letter-spacing: 2px;
+  padding-top: 0;
+}
+
+/* Buttons */
+.jobcan-enhanced .btn,
+.jobcan-enhanced button,
+.jobcan-enhanced input[type="button"],
+.jobcan-enhanced input[type="submit"] {
+  background-color: var(--primary-color);
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+  border-width: initial;
+  border-style: none;
+  border-color: initial;
+  border-image: initial;
+  border-radius: 8px;
+  padding: 8px 16px;
+  transition: var(--transition);
+}
+
+.jobcan-enhanced .btn:hover,
+.jobcan-enhanced button:hover,
+.jobcan-enhanced input[type="button"]:hover,
+.jobcan-enhanced input[type="submit"]:hover {
+  background-color: #0055b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 120, 255, 0.3);
+}
+
+/* Small buttons with white background */
+.jobcan-enhanced .btn-sm,
+.jobcan-enhanced button.small,
+.jobcan-enhanced .small-btn,
+.jobcan-enhanced .btn-mini,
+.jobcan-enhanced button.mini,
+.jobcan-enhanced .mini-btn,
+.jobcan-enhanced td button,
+.jobcan-enhanced td .btn,
+.jobcan-enhanced .btn-secondary {
+  background-color: white;
+  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  text-transform: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.jobcan-enhanced .btn-sm:hover,
+.jobcan-enhanced button.small:hover,
+.jobcan-enhanced .small-btn:hover,
+.jobcan-enhanced .btn-mini:hover,
+.jobcan-enhanced button.mini:hover,
+.jobcan-enhanced .mini-btn:hover,
+.jobcan-enhanced td button:hover,
+.jobcan-enhanced td .btn:hover,
+.jobcan-enhanced .btn-secondary:hover {
+  background-color: #f8f9fa;
+  color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary-color);
+}
+
+/* Icon-only small buttons */
+.jobcan-enhanced .btn-icon,
+.jobcan-enhanced button.icon,
+.jobcan-enhanced .icon-btn {
+  background-color: white;
+  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px;
+  min-width: 32px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.jobcan-enhanced .btn-icon:hover,
+.jobcan-enhanced button.icon:hover,
+.jobcan-enhanced .icon-btn:hover {
+  background-color: #f8f9fa;
+  color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  border-color: var(--primary-color);
+}
+
+.jobcan-enhanced .btn-secondary,
+.jobcan-enhanced button.secondary {
+  background-color: white;
+  color: var(--secondary-color);
+}
+
+.jobcan-enhanced .btn-secondary:hover,
+.jobcan-enhanced button.secondary:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  border-color: var(--secondary-color);
+}
+
+/* Form elements */
+.jobcan-enhanced input[type="text"],
+.jobcan-enhanced input[type="password"],
+.jobcan-enhanced input[type="email"],
+.jobcan-enhanced input[type="number"],
+.jobcan-enhanced input[type="date"],
+.jobcan-enhanced select,
+.jobcan-enhanced textarea {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: var(--transition);
+  width: 100%;
+  background-color: white;
+  color: var(--text-color);
+  box-sizing: border-box;
+}
+
+.jobcan-enhanced .custom-select {
+  display: inline-block;
+  width: 100%;
+  height: calc(2em + .75rem + 2px);
+  padding: .375rem 1.75rem .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1;
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.jobcan-enhanced input:focus,
+.jobcan-enhanced select:focus,
+.jobcan-enhanced textarea:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 120, 255, 0.2);
+  outline: none;
+}
+
+/* Tables */
+.jobcan-enhanced table,
+.jobcan-enhanced .table,
+.jobcan-enhanced .jbc-table {
+  width: 100%;
+  border-collapse: collapse !important;
+  border-spacing: 0;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: none;
+  font-size: 14px;
+  border: 1px solid #d0d5dd;
+}
+
+.jobcan-enhanced .table-responsive {
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background-color: var(--card-bg);
+  border: none;
+}
+
+.jobcan-enhanced th,
+.jobcan-enhanced .table th,
+.jobcan-enhanced .jbc-table th,
+.jobcan-enhanced .jbc-table-header {
+  background-color: #f8f9fa;
+  color: var(--secondary-color);
+  font-weight: 600;
+  text-align: center;
+  padding: 12px 16px;
+  border: none;
+  border-right: 1px solid #d0d5dd;
+  border-bottom: 1px solid #d0d5dd;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.jobcan-enhanced th:last-child,
+.jobcan-enhanced .table th:last-child,
+.jobcan-enhanced .jbc-table th:last-child {
+  border-right: none;
+}
+
+.jobcan-enhanced td,
+.jobcan-enhanced .table td,
+.jobcan-enhanced .jbc-table td {
+  padding: 8px 8px;
+  border: none;
+  border-right: 1px solid #d0d5dd;
+  border-bottom: 1px solid #d0d5dd;
+  color: var(--text-color);
+  vertical-align: middle;
+}
+
+.jobcan-enhanced td:last-child,
+.jobcan-enhanced .table td:last-child,
+.jobcan-enhanced .jbc-table td:last-child {
+  border-right: none;
+}
+
+.jobcan-enhanced tr:last-child td,
+.jobcan-enhanced .table tr:last-child td,
+.jobcan-enhanced .jbc-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Bordered tables - these styles are now default */
+.jobcan-enhanced .table-bordered,
+.jobcan-enhanced .jbc-table-bordered {
+  border: 1px solid var(--border-color);
+}
+
+.jobcan-enhanced .table-bordered th,
+.jobcan-enhanced .table-bordered td,
+.jobcan-enhanced .jbc-table-bordered th,
+.jobcan-enhanced .jbc-table-bordered td {
+  border: 1px solid var(--border-color);
+}
+
+/* Table row status variants */
+.jobcan-enhanced .table tr.success td,
+.jobcan-enhanced .jbc-table tr.success td {
+  background-color: rgba(46, 204, 113, 0.1);
+}
+
+.jobcan-enhanced .table tr.warning td,
+.jobcan-enhanced .jbc-table tr.warning td {
+  background-color: rgba(243, 156, 18, 0.1);
+}
+
+.jobcan-enhanced .table tr.danger td,
+.jobcan-enhanced .jbc-table tr.danger td {
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* Table cell alignment */
+.jobcan-enhanced .table .text-center,
+.jobcan-enhanced .jbc-table .text-center {
+  text-align: center;
+}
+
+.jobcan-enhanced .table .text-right,
+.jobcan-enhanced .jbc-table .text-right {
+  text-align: right;
+}
+
+.jobcan-enhanced .table .text-nowrap,
+.jobcan-enhanced .jbc-table .text-nowrap {
+  white-space: nowrap;
+}
+
+.jobcan-enhanced .table .align-middle,
+.jobcan-enhanced .jbc-table .align-middle {
+  vertical-align: middle;
+}
+
+/* Links in tables */
+.jobcan-enhanced .table a,
+.jobcan-enhanced .jbc-table a,
+.jobcan-enhanced .jbc-text-reset {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.jobcan-enhanced .table a:hover,
+.jobcan-enhanced .jbc-table a:hover,
+.jobcan-enhanced .jbc-text-reset:hover {
+  color: #0055b3;
+  text-decoration: underline;
+}
+
+/* Table utilities */
+.jobcan-enhanced .mt-3 {
+  margin-top: 1rem;
+}
+
+/* Pagination for tables */
+.jobcan-enhanced .pagination {
+  display: flex;
+  padding-left: 0;
+  list-style: none;
+  border-radius: 0.25rem;
+  margin: 16px 0;
+  justify-content: center;
+}
+
+.jobcan-enhanced .pagination .page-item {
+  margin: 0 2px;
+}
+
+.jobcan-enhanced .pagination .page-link {
+  position: relative;
+  display: block;
+  padding: 0.5rem 0.75rem;
+  margin-left: -1px;
+  line-height: 1.25;
+  color: var(--primary-color);
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.jobcan-enhanced .pagination .page-link:hover {
+  z-index: 2;
+  color: var(--primary-color);
+  text-decoration: none;
+  background-color: var(--primary-light);
+  border-color: var(--border-color);
+}
+
+.jobcan-enhanced .pagination .page-item.active .page-link {
+  z-index: 3;
+  color: #fff;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Progress bars */
+.jobcan-enhanced .progress {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.jobcan-enhanced .progress-bar {
+  background-color: var(--primary-color);
+  height: 100%;
+  border-radius: 4px;
+}
+
+/* Badges and status indicators */
+.jobcan-enhanced .badge,
+.jobcan-enhanced .status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.jobcan-enhanced .badge-primary,
+.jobcan-enhanced .status-active {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.jobcan-enhanced .badge-success,
+.jobcan-enhanced .status-approved {
+  background-color: rgba(46, 204, 113, 0.2);
+  color: var(--success-color);
+}
+
+.jobcan-enhanced .badge-warning,
+.jobcan-enhanced .status-pending {
+  background-color: rgba(243, 156, 18, 0.2);
+  color: var(--warning-color);
+}
+
+.jobcan-enhanced .badge-danger,
+.jobcan-enhanced .status-rejected {
+  background-color: rgba(231, 76, 60, 0.2);
+  color: var(--danger-color);
+}
+
+/* Charts and graphs */
+.jobcan-enhanced .chart-container {
+  padding: 16px;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+/* Fix specific Jobcan elements */
+.jobcan-enhanced #working-status {
+  font-size: 18px;
+  font-weight: 600;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  display: inline-block;
+  margin: 16px 0;
+}
+
+/* Time display on the main punch screen */
+.jobcan-enhanced .contentsArea h1 {
+  font-size: 72px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--secondary-color);
+  font-family: 'Roboto', 'Arial', sans-serif;
+  margin: 32px 0 40px;
+}
+
+/* Push button styling */
+.jobcan-enhanced input[value="PUSH"] {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px 48px;
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto;
+  display: block;
+}
+
+/* Mode toggles */
+.jobcan-enhanced .radio-inline {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 16px;
+  cursor: pointer;
+}
+
+.jobcan-enhanced input[type="radio"] {
+  margin-right: 8px;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .jobcan-enhanced #sidemenu,
+  .jobcan-enhanced .sidemenu {
+    margin: 12px;
+  }
+  
+  .jobcan-enhanced .clock,
+  .jobcan-enhanced #display-time,
+  .jobcan-enhanced .contentsArea h1 {
+    font-size: 48px;
+  }
+  
+  .jobcan-enhanced .contentsArea {
+    padding: 8px;
+  }
+}
+
+/* Hide close buttons in sidemenu */
+.jobcan-enhanced .sidemenu-close,
+.jobcan-enhanced .jbc-sidemenu-close,
+.jobcan-enhanced [onclick*="closeSidemenu"],
+.jobcan-enhanced button[aria-label="Close"],
+.jobcan-enhanced .btn-close,
+.jobcan-enhanced .close-btn {
+  display: none !important;
+}
+
+/* Layout system */
+.jobcan-enhanced .row {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-right: 0px;
+  margin-left: 0px;
+}
+
+/* Column system for the row */
+.jobcan-enhanced .col,
+.jobcan-enhanced [class*="col-"] {
+  position: relative;
+  width: 100%;
+  padding-right: 8px;
+  padding-left: 8px;
+}
+
+.jobcan-enhanced .no-gutters {
+    margin-right: 0;
+  margin-left: 0;
+}
+
+.jobcan-enhanced .no-gutters > .col,
+.jobcan-enhanced .no-gutters > [class*="col-"] {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+/* Responsive column classes */
+@media (min-width: 576px) {
+  .jobcan-enhanced .col-sm {
+    -ms-flex-preferred-size: 0;
+    flex-basis: 0;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .jobcan-enhanced .col-md {
+    -ms-flex-preferred-size: 0;
+    flex-basis: 0;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 992px) {
+  .jobcan-enhanced .col-lg {
+    -ms-flex-preferred-size: 0;
+    flex-basis: 0;
+    -ms-flex-positive: 1;
+    flex-grow: 1;
+    max-width: 100%;
+  }
+}
+
+/* Remove rounded corners from tables inside responsive containers */
+.jobcan-enhanced .table-responsive table,
+.jobcan-enhanced .table-responsive .table,
+.jobcan-enhanced .table-responsive .jbc-table {
+  border-radius: 0;
+  border: 1px solid #d0d5dd;
+}
+
+/* Ensure borders are visible in all browsers */
+.jobcan-enhanced .jbc-table-bordered {
+  border-collapse: collapse !important; 
+  border: 1px solid #d0d5dd !important;
+}
+
+.jobcan-enhanced .jbc-table-bordered th,
+.jobcan-enhanced .jbc-table-bordered td {
+  border: 1px solid #d0d5dd !important;
+}
+
+/* Header visibility control */
+.jobcan-enhanced .jbcid-header {
+  position: fixed;
+  top: -24px; /* Hide it above the viewport by default */
+  left: 0;
+  width: 100%;
+  height: 24px;
+  z-index: 2000;
+  background-color: #f8f9fa;
+  transition: top 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.jobcan-enhanced .jbcid-header.visible {
+  top: 0;
+}
+
+.jobcan-enhanced .jbcid-header-trigger {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  z-index: 1999;
+  background-color: transparent;
+}
+
+/* Adjust the main content to account for the hidden header */
+.jobcan-enhanced .headerArea {
+  margin-top: 0;
+}
+
+/* Main content spacing when using jbcid */
+.jobcan-enhanced .main-contents-mt.use-jbcid {
+  margin-top: 80px;
+}
+
+/* Hide empty padding div */
+.jobcan-enhanced .text-right.px-3.py-3 {
+  display: none !important;
+}
+
+/* Time table styling */
+.jobcan-enhanced #time-table,
+.jobcan-enhanced .time-table {
+  margin-top: 16px;
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.jobcan-enhanced #time-table table,
+.jobcan-enhanced .time-table table {
+  width: 100%;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  border-radius: 0;
+}
+
+.jobcan-enhanced #time-table th,
+.jobcan-enhanced .time-table th {
+  background-color: #f8f9fa;
+  color: var(--secondary-color);
+  font-weight: 500;
+  padding: 12px 16px;
+  width: 180px;
+  text-align: left;
+  border-right: 1px solid #e9ecef;
+  white-space: nowrap;
+}
+
+.jobcan-enhanced #time-table td,
+.jobcan-enhanced .time-table td {
+  padding: 12px 16px;
+  color: var(--text-color);
+  font-weight: 400;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.jobcan-enhanced #time-table tr:last-child td,
+.jobcan-enhanced .time-table tr:last-child td,
+.jobcan-enhanced #time-table tr:last-child th,
+.jobcan-enhanced .time-table tr:last-child th {
+  border-bottom: none;
+}
+
+.jobcan-enhanced #time-table .jbc-text-sub,
+.jobcan-enhanced .time-table .jbc-text-sub {
+  color: var(--secondary-color);
+  font-size: 14px;
+}
+
+/* Highlight specific time information */
+.jobcan-enhanced #time-table tr:nth-child(4) td,
+.jobcan-enhanced .time-table tr:nth-child(4) td {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Status indicators in time table */
+.jobcan-enhanced #time-table tr:last-child td,
+.jobcan-enhanced .time-table tr:last-child td {
+  font-weight: 600;
+}
+
+/* Manager name and staff dropdown styling */
+.jobcan-enhanced #manager-name,
+.jobcan-enhanced .dropdown#manager-name {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  height: auto;
+  z-index: 10;
+}
+
+.jobcan-enhanced #manager-name .dropdown-toggle,
+.jobcan-enhanced .dropdown#manager-name .dropdown-toggle {
+  display: flex;
+  align-items: center;
+  color: white;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: var(--transition);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.jobcan-enhanced #manager-name .dropdown-toggle:hover,
+.jobcan-enhanced .dropdown#manager-name .dropdown-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.jobcan-enhanced #manager-name .dropdown-toggle::after,
+.jobcan-enhanced .dropdown#manager-name .dropdown-toggle::after {
+  display: inline-block;
+  margin-left: 8px;
+  vertical-align: 0.255em;
+  content: "";
+  border-top: 0.3em solid;
+  border-right: 0.3em solid transparent;
+  border-bottom: 0;
+  border-left: 0.3em solid transparent;
+}
+
+.jobcan-enhanced #manager-name .dropdown-menu,
+.jobcan-enhanced .dropdown#manager-name .dropdown-menu {
+  min-width: 160px;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-color);
+  text-align: left;
+  background-color: var(--card-bg);
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  right: 0;
+  left: auto;
+  top: 100%;
+  margin-top: 4px;
+  position: absolute;
+  z-index: 1000;
+  display: none;
+}
+
+.jobcan-enhanced #manager-name.show .dropdown-menu,
+.jobcan-enhanced .dropdown#manager-name.show .dropdown-menu {
+  display: block;
+}
+
+.jobcan-enhanced #manager-name .dropdown-item,
+.jobcan-enhanced .dropdown#manager-name .dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  clear: both;
+  font-weight: 400;
+  color: var(--text-color);
+  text-align: inherit;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+  text-decoration: none;
+}
+
+.jobcan-enhanced #manager-name .dropdown-item:hover,
+.jobcan-enhanced .dropdown#manager-name .dropdown-item:hover {
+  color: var(--primary-color);
+  text-decoration: none;
+  background-color: var(--primary-light);
+}
+
+/* Staff settings icon button */
+.jobcan-enhanced .staff-settings-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 6px;
+  margin-left: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: var(--transition);
+}
+
+.jobcan-enhanced .staff-settings-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.jobcan-enhanced .staff-settings-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: white;
+}
+
+/* Hide rollover menu dropdown */
+.jobcan-enhanced #rollover-menu,
+.jobcan-enhanced .dropdown-menu-right {
+  display: none !important;
+}
+
+/* Content layout adjustments for better vertical spacing */
+.jobcan-enhanced .contentsArea {
+  padding-top: 16px;
+}
+
+/* Convert modal to side panel */
+.jobcan-enhanced #man-hour-manage-modal {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  width: 550px !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: 12px 0 0 12px !important;
+  z-index: 1050 !important;
+  overflow-y: auto !important;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.jobcan-enhanced #man-hour-manage-modal.show {
+  transform: translateX(0);
+}
+
+.jobcan-enhanced #man-hour-manage-modal .modal-dialog {
+  margin: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 12px 0 0 12px !important;
+  padding: 0px !important;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .modal-content {
+  height: 100% !important;
+  border-radius: 10px 0 0 10px !important;
+  border: none !important;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .modal-header {
+  padding: 12px 20px !important;
+  min-height: 60px !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .close,
+.jobcan-enhanced #man-hour-manage-modal button.close {
+  opacity: 1 !important;
+  color: var(--secondary-color) !important;
+  font-size: 24px !important;
+  font-weight: normal !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background-color: transparent !important;
+  transition: background-color 0.2s !important;
+  cursor: pointer !important;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .close:hover,
+.jobcan-enhanced #man-hour-manage-modal button.close:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .modal-body {
+  flex: 1 !important;
+  overflow-y: auto !important;
+  padding: 16px !important;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .modal-footer {
+  padding: 12px 16px !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+/* Add date selector navigation to modal header */
+.jobcan-enhanced #man-hour-manage-modal .date-selector {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+/* Hide progress-box in the modal */
+.jobcan-enhanced #progress-box,
+.jobcan-enhanced #man-hour-manage-modal #progress-box {
+  display: none !important;
+}
+
+/* Hide modal backdrop and adjust layout when modal is visible */
+.jobcan-enhanced .modal-backdrop.fade.show {
+  display: none !important;
+  opacity: 0 !important;
+}
+
+/* Shrink main content when side panel is open */
+.jobcan-enhanced #man-hour-manage-modal.show ~ .contentsArea,
+.jobcan-enhanced #man-hour-manage-modal.show ~ #main-content,
+.jobcan-enhanced body.modal-open .contentsArea,
+.jobcan-enhanced body.modal-open #main-content,
+.jobcan-enhanced #man-hour-manage-modal.show ~ .jbc-card,
+.jobcan-enhanced body.modal-open .jbc-card {
+  width: calc(100% - 550px) !important;
+  margin-right: 550px !important;
+  transition: width 0.3s ease-in-out, margin-right 0.3s ease-in-out;
+}
+
+/* Normal state of content area */
+.jobcan-enhanced .contentsArea,
+.jobcan-enhanced #main-content {
+    width: 100%;
+    margin-right: 0;
+  transition: width 0.3s ease-in-out, margin-right 0.3s ease-in-out;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .date-selector .date-nav-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: var(--primary-color);
+  margin: 0 4px;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .date-selector .date-nav-btn:hover {
+  background-color: var(--primary-light);
+}
+
+/* Enhanced Modal Title Styling */
+.jobcan-enhanced .enhanced-title-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: auto;
+}
+
+.jobcan-enhanced .enhanced-title-time {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--secondary-color);
+  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.jobcan-enhanced .enhanced-title-date {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: normal;
+}
+
+/* Man hour modal table improvements */
+.jobcan-enhanced #man-hour-manage-modal .table,
+.jobcan-enhanced #man-hour-manage-modal .jbc-table {
+  margin: 0 !important;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .jbc-table th:first-child,
+.jobcan-enhanced #man-hour-manage-modal .jbc-table td:first-child {
+  display: none !important;
+}
+
+.jobcan-enhanced #man-hour-manage-modal .jbc-table input,
+.jobcan-enhanced #man-hour-manage-modal .jbc-table select,
+.jobcan-enhanced #man-hour-manage-modal .table input,
+.jobcan-enhanced #man-hour-manage-modal .table select {
+  border: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* Custom select dropdown styling */
+.jobcan-enhanced .custom-select-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 6px 10px;
+  background-color: #f9f9f9;
+  transition: all 0.2s ease;
+}
+
+.jobcan-enhanced .custom-select-wrapper:hover {
+  border-color: var(--primary-color);
+  background-color: #f5f5f5;
+}
+
+.jobcan-enhanced .project-select {
+  max-width: 220px;
+}
+
+.jobcan-enhanced .task-select {
+  max-width: 110px;
+}
+
+.jobcan-enhanced .select-display {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  color: var(--text-color);
+  text-align: left;
+  padding-right: 8px;
+}
+
+.jobcan-enhanced .select-display.placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.jobcan-enhanced .dropdown-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: #666;
+}
+
+/* Sidepanel for select options */
+.jobcan-enhanced .select-sidepanel {
+  position: fixed;
+  top: 0px;
+  width: 400px;
+  height: 100vh;
+  background-color: white;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 0px 20px;
+  z-index: 1040;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(30%);
+  transition: transform 0.3s;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Tabs for filtering options */
+.jobcan-enhanced .tabs-container {
+  display: flex;
+  overflow-x: auto;
+  padding: 0 16px;
+  border-bottom: 1px solid #eee;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  background-color: #f9f9fa;
+}
+
+.jobcan-enhanced .tabs-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+.jobcan-enhanced .tab {
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  margin-right: 6px;
+}
+
+.jobcan-enhanced .tab:hover {
+  color: var(--primary-color);
+}
+
+.jobcan-enhanced .tab.active {
+  color: var(--primary-color);
+  font-weight: 500;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.jobcan-enhanced .select-sidepanel.open {
+  transform: translateX(0);
+}
+
+.jobcan-enhanced .sidepanel-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}
+
+.jobcan-enhanced .sidepanel-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--secondary-color);
+}
+
+.jobcan-enhanced .options-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.jobcan-enhanced .options-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: calc(100vh - 70px);
+}
+
+.jobcan-enhanced .option-item {
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-color);
+  padding: 8px 8px;
+  border-left: 3px solid transparent;
+  transition: 0.2s;
+}
+
+.jobcan-enhanced .option-item:hover {
+  background-color: #f5f9ff;
+  border-left-color: #cce0ff;
+}
+
+.jobcan-enhanced .option-item.selected {
+  background-color: #e6f2ff;
+  border-left-color: var(--primary-color);
+  font-weight: 500;
+  color: var(--primary-color);
+}
+
+.jobcan-enhanced .no-options {
+  padding: 16px;
+  color: #999;
+  font-style: italic;
+  text-align: center;
+}
+
+.jobcan-enhanced .sidepanel-close {
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.jobcan-enhanced .sidepanel-close:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Hide footer */
+.jobcan-enhanced #all-footer,
+.jobcan-enhanced .jbc-footer {
+  display: none !important;
+}
+
+/* Enhanced collapseInfo section */
+.jobcan-enhanced #collapseInfo {
+  margin-top: 20px;
+}
+
+.jobcan-enhanced #collapseInfo .card,
+.jobcan-enhanced #collapseInfo .jbc-card,
+.jobcan-enhanced #collapseInfo .compact-card {
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.jobcan-enhanced #collapseInfo .card:hover,
+.jobcan-enhanced #collapseInfo .jbc-card:hover,
+.jobcan-enhanced #collapseInfo .compact-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.jobcan-enhanced #collapseInfo .card-header,
+.jobcan-enhanced #collapseInfo .jbc-card-header {
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.jobcan-enhanced #collapseInfo .card-header h5,
+.jobcan-enhanced #collapseInfo .jbc-card-header h5 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.jobcan-enhanced #collapseInfo .card-body,
+.jobcan-enhanced #collapseInfo .jbc-card-body {
+  padding: 0;
+}
+
+.jobcan-enhanced #collapseInfo table {
+  margin-bottom: 0;
+}
+
+.jobcan-enhanced #collapseInfo th {
+  width: 140px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: normal;
+  color: #666;
+  background-color: #f8f9fa;
+}
+
+.jobcan-enhanced #collapseInfo td {
+  padding: 10px;
+  font-size: 13px;
+}
+
+.jobcan-enhanced .toggle-zero-values-btn {
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--primary-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.jobcan-enhanced .toggle-zero-values-btn:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary-color);
+}
+
+.jobcan-enhanced .toggle-zero-values-btn.showing {
+  background-color: var(--primary-light);
+}
+
+/* Flip Clock Animation */
+.jobcan-enhanced .flip-clock-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: var(--space-lg) 0;
+  padding: var(--space-lg);
+  background-color: var(--color-surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+}
+
+.jobcan-enhanced .flip-clock-digit {
+  position: relative;
+  width: 80px; /* 2x larger */
+  height: 120px; /* 2x larger */
+  margin: 0 4px;
+  perspective: 800px;
+}
+
+.jobcan-enhanced .colon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  width: 30px;
+  height: 120px;
+  color: var(--color-primary);
+  font-weight: bold;
+}
+
+.jobcan-enhanced .flip-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform var(--transition-normal);
+}
+
+.jobcan-enhanced .flip-card-front,
+.jobcan-enhanced .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+  color: var(--color-text-on-primary);
+  font-size: 3rem;
+  font-weight: 700;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+}
+
+.jobcan-enhanced .flip-card-back {
+  transform: rotateX(180deg);
+}
+
+.jobcan-enhanced .flip-card.flipping {
+  animation: flipAnimation 0.6s cubic-bezier(0.455, 0.03, 0.515, 0.955) forwards;
+}
+
+@keyframes flipAnimation {
+  0% {
+    transform: rotateX(0deg);
+  }
+  100% {
+    transform: rotateX(180deg);
+  }
+}
+
+/* Hide original clock */
+.jobcan-enhanced #clock,
+.jobcan-enhanced #display-time,
+.jobcan-enhanced .display-2 > div:not(.flip-clock-container) {
+  display: none;
+}
+
+.jobcan-enhanced .display-2 {
+  font-weight: 600;
+}
+
+/* Screenshot capture styles */
+#screenshot-capture-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  cursor: pointer;
+  background: #4285f4;
+  color: #fff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+#screenshot-capture-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+#screenshot-selection-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2147483646;
+  cursor: crosshair;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+#screenshot-selection {
+  position: absolute;
+  border: 2px dashed #fff;
+  background-color: rgba(66, 133, 244, 0.2);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Selection handles */
+#screenshot-selection::before,
+#screenshot-selection::after,
+#screenshot-selection > span::before,
+#screenshot-selection > span::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border: 1px solid #4285f4;
+}
+
+#screenshot-selection::before {
+  top: -5px;
+  left: -5px;
+}
+
+#screenshot-selection::after {
+  top: -5px;
+  right: -5px;
+}
+
+#screenshot-selection > span::before {
+  bottom: -5px;
+  left: -5px;
+}
+
+#screenshot-selection > span::after {
+  bottom: -5px;
+  right: -5px;
+}
+
+/* Screenshot notification */
+.screenshot-notification {
+  position: fixed;
+  bottom: 24px;
+  left: 20px;
+  background-color: #4285f4;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  z-index: 9999;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Screenshot preview */
+#screenshot-preview-container {
+  position: fixed;
+  right: 20px;
+  z-index: 9998;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+  padding: 10px;
+  max-width: 200px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#screenshot-preview-container.open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#screenshot-preview-container.closing {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.screenshot-preview-image {
+  width: 100%;
+  max-height: 133px;
+  object-fit: contain;
+  border-radius: 4px;
+  margin-bottom: 0px;
+  border: 1px solid #eee;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.screenshot-preview-image:hover {
+  transform: scale(1.05);
+}
+
+.preview-wrapper {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.preview-wrapper:hover::after {
+  content: "プレビューを確認";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 10px;
+  padding: 3px 6px;
+  text-align: center;
+  border-radius: 0 0 4px 4px;
+}
+
+.screenshot-preview-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.screenshot-preview-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.screenshot-preview-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.download-btn {
+  background-color: #4285f4;
+  color: white;
+}
+
+.download-btn:hover {
+  background-color: #3367d6;
+}
+
+.close-btn {
+  background-color: #f1f3f4;
+  color: #5f6368;
+}
+
+.close-btn:hover {
+  background-color: #e8eaed;
+}
+
+/* Form screenshot button */
+.form-screenshot-btn {
+  margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background-color: #f1f3f4 !important;
+  color: #5f6368 !important;
+  border: 1px solid #dadce0 !important;
+}
+
+.form-screenshot-btn:hover {
+  background-color: #e8eaed !important;
+  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.1) !important;
+}
+
+.form-screenshot-btn svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 2px;
+}
+
+/* Fullsize image modal */
+#screenshot-fullsize-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#screenshot-fullsize-modal img {
+  max-width: 90%;
+  max-height: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+#screenshot-fullsize-modal button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+#screenshot-fullsize-modal button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.fullsize-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(0, 0, 0, 0.5);
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  user-select: none;
+}
+
+/* Un-match time warning styles */
+.jobcan-enhanced #un-match-time {
+  display: block;
+  background-color: rgba(231, 76, 60, 0.1);
+  color: var(--danger-color);
+  padding: 8px 12px;
+  border-left: 4px solid var(--danger-color);
+  margin: 12px 0;
+  font-weight: 600;
+  border-radius: 4px;
+  animation: pulse-warning 2s infinite;
+}
+
+.jobcan-enhanced #un-match-time:empty {
+  display: none;
+}
+
+.jobcan-enhanced #un-match-time.enhanced-warning {
+  background-color: rgba(231, 76, 60, 0.15);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.2);
+  font-size: 1.05em;
+  padding: 10px 14px;
+}
+
+@keyframes pulse-warning {
+  0% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(231, 76, 60, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+  }
+}

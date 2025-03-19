@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jobcan UI Enhancer</title>
+  <style>
+    :root {
+      /* Color Palette - Based on Design Guide */
+      --color-primary: #0066DD;
+      --color-primary-light: #4D94E9;
+      --color-primary-dark: #0047AB;
+      
+      --color-secondary: #6C757D;
+      --color-secondary-light: #ADB5BD;
+      --color-secondary-dark: #495057;
+      
+      --color-accent: #28A745;
+      --color-accent-light: #5CC072;
+      --color-accent-dark: #1E7E34;
+      
+      --color-background: #FFFFFF;
+      --color-surface: #F8F9FA;
+      --color-card: #FFFFFF;
+      
+      --color-text-primary: #212529;
+      --color-text-secondary: #6C757D;
+      --color-text-disabled: #ADB5BD;
+      
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 2px 4px rgba(0,0,0,0.05);
+      
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      
+      --radius-sm: 0.25rem;
+      --radius-md: 0.5rem;
+      --radius-full: 9999px;
+      
+      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    body {
+      width: 320px;
+      font-family: var(--font-family);
+      padding: var(--space-lg);
+      color: var(--color-text-primary);
+      background-color: var(--color-background);
+      margin: 0;
+    }
+    
+    .popup-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-md);
+      border-bottom: 1px solid var(--color-secondary-light);
+    }
+    
+    .popup-logo {
+      width: 36px;
+      height: 36px;
+      margin-right: var(--space-md);
+    }
+    
+    h1 {
+      font-size: 1.25rem;
+      margin: 0;
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+    
+    .setting-group {
+      margin-bottom: var(--space-md);
+    }
+    
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+    
+    .setting-info {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .setting-item-label {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    
+    .setting-item-description {
+      font-size: 0.8rem;
+      color: var(--color-text-secondary);
+      margin-top: var(--space-xs);
+    }
+    
+    /* Status indicator */
+    .status-indicator {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+      margin-left: var(--space-xs);
+    }
+    
+    .status-enabled {
+      background-color: var(--color-accent-light);
+      color: white;
+    }
+    
+    .status-disabled {
+      background-color: var(--color-secondary-light);
+      color: white;
+    }
+    
+    /* Modern Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--color-secondary-light);
+      transition: .3s;
+      border-radius: var(--radius-full);
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: var(--color-primary);
+    }
+    
+    input:focus + .toggle-slider {
+      box-shadow: 0 0 1px var(--color-primary);
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+    
+    /* Toast notification */
+    #toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: var(--color-primary);
+      color: white;
+      text-align: center;
+      border-radius: var(--radius-md);
+      padding: var(--space-sm) var(--space-md);
+      position: fixed;
+      z-index: 1000;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 30px;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-md);
+    }
+    
+    #toast.show {
+      visibility: visible;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+    
+    @keyframes fadein {
+      from {bottom: 0; opacity: 0;}
+      to {bottom: 30px; opacity: 1;}
+    }
+    
+    @keyframes fadeout {
+      from {bottom: 30px; opacity: 1;}
+      to {bottom: 0; opacity: 0;}
+    }
+    
+    .note {
+      background-color: var(--color-surface);
+      border-left: 3px solid var(--color-primary);
+      padding: var(--space-sm) var(--space-md);
+      margin-top: var(--space-md);
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+      border-radius: var(--radius-sm);
+    }
+    
+    .footer {
+      font-size: 0.75rem;
+      color: var(--color-text-secondary);
+      margin-top: var(--space-lg);
+      text-align: center;
+      border-top: 1px solid var(--color-secondary-light);
+      padding-top: var(--space-md);
+    }
+    
+    /* Coming soon badge */
+    .coming-soon {
+      display: inline-block;
+      background-color: var(--color-accent);
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      margin-left: var(--space-xs);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="popup-header">
+    <img src="icon48.png" alt="Jobcan UI Enhancer" class="popup-logo">
+    <h1>Jobcan UI Enhancer</h1>
+  </div>
+  
+  <div class="setting-group">
+    <div class="setting-item">
+      <div class="setting-info">
+        <div>
+          <span class="setting-item-label">UI Enhancement</span>
+          <span id="statusIndicator" class="status-indicator status-enabled">Enabled</span>
+        </div>
+        <span class="setting-item-description">Improves Jobcan's interface</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="enableEnhancer" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-info">
+        <span class="setting-item-label">Dark Mode <span class="coming-soon">Coming Soon</span></span>
+        <span class="setting-item-description">Reduces eye strain in low light</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="darkMode" disabled>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="note">
+    Refresh the page after changing settings for them to take effect.
+  </div>
+  
+  <div class="footer">
+    Version 1.0
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
