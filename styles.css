@@ -69,6 +69,13 @@
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
   --transition-slow: 350ms ease;
+  
+  /* Clock Modern Style Colors */
+  --clr-1: #0a1236;
+  --clr-2: #132269;
+  --clr-3: #2138ad;
+  --clr-4: #034aff;
+  --clr-5: #00b3ff;
 }
 
 /* Base styles with new design system */
@@ -114,10 +121,10 @@
   background: linear-gradient(90deg, rgb(0, 102, 204) 0%, rgb(26, 133, 255) 100%);
   border-bottom: none;
   box-shadow: var(--shadow);
-  height: 64px;
+  height: 80px;
   display: flex;
   align-items: center;
-  padding: 16px 16px;
+  padding: 24px 16px;
 }
 
 .jobcan-enhanced #header img,
@@ -263,6 +270,7 @@
   text-decoration: none;
   margin: 4px 8px;
   border-radius: 8px;
+  z-index: 1;
 }
 
 .jobcan-enhanced #sidemenu a:hover,
@@ -286,7 +294,7 @@
 .jobcan-enhanced ul.submenu,
 .jobcan-enhanced .nav-submenu {
   position: relative;
-  z-index: 1000 !important;
+  z-index: 0 !important;
 }
 
 .jobcan-enhanced .dropdown-menu,
@@ -892,7 +900,7 @@
 .jobcan-enhanced [class*="col-"] {
   position: relative;
   width: 100%;
-  padding-right: 8px;
+  padding-right:8px;
   padding-left: 8px;
 }
 
@@ -1069,11 +1077,10 @@
 .jobcan-enhanced .dropdown#manager-name {
   display: flex;
   align-items: center;
-  position: absolute;
-  top: 16px;
-  right: 16px;
+  position: block;
+
   height: auto;
-  z-index: 10;
+  z-index: 0;
 }
 
 .jobcan-enhanced #manager-name .dropdown-toggle,
@@ -2049,4 +2056,118 @@
   100% {
     box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
   }
+}
+
+/* Animation for the settings menu */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Clock style variations */
+.jobcan-enhanced .flip-clock-digit.style-gradient .flip-card-front,
+.jobcan-enhanced .flip-clock-digit.style-gradient .flip-card-back {
+  background: linear-gradient(135deg, var(--color-primary-dark, #0055b3) 0%, var(--color-primary, #0078ff) 100%);
+}
+
+.jobcan-enhanced .flip-clock-digit.style-flat .flip-card-front,
+.jobcan-enhanced .flip-clock-digit.style-flat .flip-card-back {
+  background: var(--color-primary, #0078ff);
+  box-shadow: none;
+  border-radius: 8px;
+}
+
+@property --gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.jobcan-enhanced .flip-clock-digit.style-modern {
+  position: relative;
+  background: var(--clr-1);
+  border-radius: 0.8rem;
+  overflow: visible;
+}
+
+.jobcan-enhanced .flip-clock-digit.style-modern::before,
+.jobcan-enhanced .flip-clock-digit.style-modern::after {
+  content: "";
+  position: absolute;
+  inset: -0.15rem;
+  z-index: -1;
+  background: conic-gradient(
+    from var(--gradient-angle),
+    var(--clr-3),
+    var(--clr-4),
+    var(--clr-5),
+    var(--clr-4),
+    var(--clr-3)
+  );
+  border-radius: inherit;
+  animation: rotation 10s linear infinite;
+}
+
+.jobcan-enhanced .flip-clock-digit.style-modern::after {
+  filter: blur(2rem);
+  opacity: 0.5;
+}
+
+.jobcan-enhanced .flip-clock-digit.style-modern .flip-card-front,
+.jobcan-enhanced .flip-clock-digit.style-modern .flip-card-back {
+  background: var(--clr-1);
+  color: white;
+  border: none;
+  box-shadow: none;
+}
+
+@keyframes rotation {
+  0% {
+    --gradient-angle: 0deg;
+  }
+  100% {
+    --gradient-angle: 360deg;
+  }
+}
+
+/* Settings menu styles */
+.jobcan-enhanced .flip-clock-settings-menu {
+  font-size: 14px;
+}
+
+.jobcan-enhanced .flip-clock-setting-group {
+  margin-bottom: 12px;
+}
+
+/* Mobile responsiveness for flip clock */
+@media (max-width: 768px) {
+  .jobcan-enhanced .flip-clock-digit {
+    width: 50px !important;
+    height: 75px !important;
+  }
+  
+  .jobcan-enhanced .flip-clock-digit .flip-card-front,
+  .jobcan-enhanced .flip-clock-digit .flip-card-back {
+    font-size: 2rem !important;
+  }
+  
+  .jobcan-enhanced .colon {
+    width: 20px !important;
+    height: 75px !important;
+    font-size: 2rem !important;
+  }
+  
+  .jobcan-enhanced .flip-clock-settings-menu {
+    width: 180px !important;
+  }
+}
+
+/* Override for .jbcid-header > .jbcid-navbar to remove background-color */
+.jbcid-header > .jbcid-navbar {
+    background-color: unset !important;
+}
+
+/* PUSH button container styling */
+.jobcan-enhanced .col.mb-3:has(#adit-button-push) {
+  padding: 0px;
 }

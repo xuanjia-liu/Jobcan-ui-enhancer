@@ -231,6 +231,33 @@
       margin-left: var(--space-xs);
       font-weight: 500;
     }
+    
+    /* Radio button group styling */
+    .radio-group {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .radio-option {
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+      cursor: pointer;
+      margin-right: 4px;
+    }
+    
+    .radio-option input[type="radio"] {
+      margin-right: 4px;
+    }
+    
+    .setting-section-title {
+      font-size: 1rem;
+      margin: 0 0 12px 0;
+      color: var(--color-text-primary);
+      font-weight: 600;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--color-secondary-light);
+    }
   </style>
 </head>
 <body>
@@ -261,6 +288,74 @@
       </div>
       <label class="toggle-switch">
         <input type="checkbox" id="darkMode" disabled>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <h2 class="setting-section-title">Clock Settings</h2>
+    
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-item-label">Clock Style</div>
+        <span class="setting-item-description">Change the appearance of the time display</span>
+      </div>
+      <div class="setting-control radio-group">
+        <label class="radio-option">
+          <input type="radio" name="clockStyle" value="gradient" checked> 
+          <span>Gradient</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="clockStyle" value="flat"> 
+          <span>Flat</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="clockStyle" value="modern"> 
+          <span>Modern</span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-item-label">Clock Size</div>
+        <span class="setting-item-description">Adjust the size of the clock display</span>
+      </div>
+      <div class="setting-control radio-group">
+        <label class="radio-option">
+          <input type="radio" name="clockSize" value="small"> 
+          <span>Small</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="clockSize" value="medium" checked> 
+          <span>Medium</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="clockSize" value="large"> 
+          <span>Large</span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-item-label">Show Seconds</div>
+        <span class="setting-item-description">Display seconds in the clock</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="showSeconds" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-item-label">Show Progress Bar</div>
+        <span class="setting-item-description">Display workday progress (10:00-19:00)</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="showProgressBar" checked>
         <span class="toggle-slider"></span>
       </label>
     </div>

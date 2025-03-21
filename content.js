@@ -3,13 +3,32 @@ let originalStyles = {};
 
 // Apply our UI enhancements
 function applyEnhancements() {
+  // Add body class for easier styling
+  document.body.classList.add('jobcan-enhanced');
+  
+  // Core enhancements
+  fixDuplicateSidemenus();
+  enhanceSidemenuBehavior();
+  setupHeaderVisibility();
+  enhanceManagerNameDisplay();
+  enhanceUserDisplay(); // Add new enhancement
+  setupFlipClock();
+  convertManHourModalToSidePanel();
+  enhanceModalTitle();
+  enhanceManHourSelectLists();
+  simplifyTableHeaders();
+  enhanceCollapseInfo();
+  setupScreenshotButton();
+  addFormScreenshotButton();
+  monitorUnmatchTime();
+  foldSignInRightContainer(); // Add the new function call here
+  
   // Check if enhancements are enabled
   chrome.storage.sync.get(['enableEnhancer'], function(result) {
     const enabled = result.enableEnhancer !== false; // Default to true if undefined
     
     if (enabled) {
       document.body.classList.add('jobcan-enhanced');
-      enhanceDropdownMenus();
       fixDuplicateSidemenus();
       enhanceSidemenuBehavior();
       setupHeaderVisibility();
@@ -23,6 +42,7 @@ function applyEnhancements() {
       setupScreenshotButton();
       addFormScreenshotButton();
       monitorUnmatchTime();
+      foldSignInRightContainer(); // Add the new function call here
       
       // Add background image to login page
       const loginContainer = document.querySelector('.login-page-container');
@@ -88,85 +108,6 @@ function applyEnhancements() {
   fixSettingsIcon();
 }
 
-// Enhance dropdown menus
-function enhanceDropdownMenus() {
-  // Select all potential parent menu items that might have dropdowns
-  const menuParents = document.querySelectorAll('.nav-item, .menu-item, .sidemenu > li, .has-submenu, .has-children, [data-toggle="dropdown"]');
-  
-  menuParents.forEach(parent => {
-    // Find dropdown/submenu elements
-    const submenu = parent.querySelector('ul, .dropdown-menu, .dropdown-content, .submenu, .nav-submenu');
-    
-    if (submenu) {
-      // Mark the parent as having a dropdown
-      parent.classList.add('has-submenu');
-      
-      // Initially hide the submenu unless parent is selected or has a selected child
-      const hasSelectedChild = submenu.querySelector('.selected, .active');
-      const isParentSelected = parent.classList.contains('selected') || parent.classList.contains('active');
-      
-      if (!hasSelectedChild && !isParentSelected) {
-        submenu.style.display = 'none';
-      } else {
-        // Show submenu if parent or child is selected
-        submenu.style.display = 'block';
-        parent.classList.add('selected');
-      }
-      
-      // Clean existing event listeners
-      const newParent = parent.cloneNode(true);
-      parent.parentNode.replaceChild(newParent, parent);
-      
-      // Re-find the submenu in the new parent
-      const newSubmenu = newParent.querySelector('ul, .dropdown-menu, .dropdown-content, .submenu, .nav-submenu');
-      
-      // Only add click handlers to parent menu item, not its children
-      const parentLink = newParent.querySelector('a');
-      if (parentLink) {
-        parentLink.addEventListener('click', function(event) {
-          event.preventDefault();
-          event.stopPropagation();
-          
-          // Toggle submenu visibility
-          if (newSubmenu.style.display === 'none') {
-            newSubmenu.style.display = 'block';
-          } else {
-            newSubmenu.style.display = 'none';
-      }
-    });
-  }
-    }
-  });
-  
-  // Add styling for the currently selected menu item
-  const currentPath = window.location.pathname;
-  const menuLinks = document.querySelectorAll('.sidemenu a, .nav-item a, .menu-item a');
-  
-  menuLinks.forEach(link => {
-    if (link.href && (link.href.includes(currentPath) || currentPath.includes(link.pathname))) {
-      link.classList.add('selected');
-      
-      // Also mark parent menu item as selected
-      const parentMenuItem = link.closest('.nav-item, .menu-item, .has-submenu, .has-children');
-      if (parentMenuItem) {
-        parentMenuItem.classList.add('selected');
-        
-        // If this is in a submenu, show the submenu
-        const parentSubmenu = link.closest('ul.submenu, .dropdown-menu, .dropdown-content, .submenu, .nav-submenu');
-        if (parentSubmenu) {
-          parentSubmenu.style.display = 'block';
-          
-          // Also mark the direct parent of the submenu as selected
-          const submenuParent = parentSubmenu.parentElement;
-          if (submenuParent) {
-            submenuParent.classList.add('selected');
-          }
-        }
-      }
-      }
-    });
-  }
-  
 // Fix duplicate sidemenus issue
 function fixDuplicateSidemenus() {
   // Get all sidemenus
@@ -322,7 +263,7 @@ function setupHeaderVisibility() {
     navbarMenu.style.backgroundColor = '#fff';
     navbarMenu.style.borderRadius = '0 0 16px 16px';  // Increased border radius
     navbarMenu.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';  // Enhanced shadow
-    navbarMenu.style.padding = '6px 12px';  // Increased padding
+    navbarMenu.style.padding = '8px 8px';  // Increased padding
     navbarMenu.style.border = '1px solid rgba(228, 230, 235, 0.6)';  // Subtle border
     navbarMenu.style.transition = 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)';  // Smooth animation
     
@@ -480,7 +421,7 @@ function enhanceManagerNameDisplay() {
         managerNameEl.classList.add('show');
         dropdownMenu.style.display = 'block';
       }
-    });
+    }); 
     
     // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
@@ -490,6 +431,66 @@ function enhanceManagerNameDisplay() {
       }
     });
   }
+}
+
+// Make user name and staff code display horizontally in dropdown toggle
+function enhanceUserDisplay() {
+  // Find all dropdown toggle elements with user information
+  const userToggleElements = document.querySelectorAll('a.dropdown-toggle[id="rollover-menu-link"]');
+  
+  userToggleElements.forEach(toggle => {
+    // Skip if already enhanced
+    if (toggle.dataset.enhanced === 'true') return;
+    toggle.dataset.enhanced = 'true';
+    
+    // Remove the ::after pseudo-element
+    toggle.style.position = 'relative';
+    
+    // Use a style tag to target the ::after pseudo-element
+    const styleTag = document.createElement('style');
+    styleTag.textContent = `
+      a#rollover-menu-link.d-block.dropdown-toggle::after {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(styleTag);
+    
+    // Get the content of the toggle
+    const content = toggle.innerHTML;
+    
+    // Check if it contains a <br> and a div with staff code
+    if (content.includes('<br>') && content.includes('スタッフコード')) {
+      // Extract the name and staff code parts
+      const parts = content.split('<br>');
+      const name = parts[0].trim();
+      const staffCodeDiv = parts[1].trim();
+      
+      // Create a wrapper for horizontal layout
+      const wrapper = document.createElement('div');
+      wrapper.style.display = 'flex';
+      wrapper.style.alignItems = 'center';
+      wrapper.style.gap = '8px'; // Space between name and code
+      
+      // Create name element
+      const nameElement = document.createElement('span');
+      nameElement.innerHTML = name;
+      
+      // Extract staff code content from div
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = staffCodeDiv;
+      const staffCodeElement = document.createElement('span');
+      staffCodeElement.style.fontSize = '10px';
+      staffCodeElement.innerHTML = tempDiv.firstChild.innerHTML;
+      
+      // Append elements to wrapper
+      wrapper.appendChild(nameElement);
+      wrapper.appendChild(staffCodeElement);
+      
+      // Replace toggle content
+      toggle.innerHTML = '';
+      toggle.appendChild(wrapper);
+    }
+  });
 }
 
 // Create and setup the flip clock animation
@@ -510,26 +511,491 @@ function setupFlipClock() {
     const flipClockContainer = document.createElement('div');
     flipClockContainer.className = 'flip-clock-container';
     flipClockContainer.style.display = 'flex';
+    flipClockContainer.style.flexDirection = 'column';
     flipClockContainer.style.alignItems = 'center';
     flipClockContainer.style.justifyContent = 'center';
     flipClockContainer.style.margin = 'var(--space-lg) 0';
     flipClockContainer.style.padding = 'var(--space-md)';
-    flipClockContainer.style.background = 'var(--color-surface)';
+    flipClockContainer.style.background = 'var(--color-surface, #ffffff)';
     flipClockContainer.style.borderRadius = '16px';
     flipClockContainer.style.boxShadow = 'var(--shadow-sm)';
+    flipClockContainer.style.position = 'relative';
+    flipClockContainer.style.transition = 'all 0.3s ease';
+    
+    // Add hover effect
+    flipClockContainer.addEventListener('mouseenter', () => {
+      flipClockContainer.style.transform = 'translateY(-5px)';
+      flipClockContainer.style.boxShadow = 'var(--shadow-md, 0 8px 16px rgba(0,0,0,0.15))';
+    });
+    
+    flipClockContainer.addEventListener('mouseleave', () => {
+      flipClockContainer.style.transform = 'translateY(0)';
+      flipClockContainer.style.boxShadow = 'var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.1))';
+    });
+    
+    // Create a clock digits container to prevent settings from being deleted
+    const clockDigitsContainer = document.createElement('div');
+    clockDigitsContainer.className = 'flip-clock-digits-container';
+    clockDigitsContainer.style.display = 'flex';
+    clockDigitsContainer.style.alignItems = 'center';
+    clockDigitsContainer.style.justifyContent = 'center';
+    flipClockContainer.appendChild(clockDigitsContainer);
+    
+    // Create progress bar container - now a proper child of the container
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'work-progress-container';
+    progressContainer.style.width = '100%'; // Match the effective width of clock digits
+    progressContainer.style.maxWidth = '58%'; // Max width to look consistent with larger clocks
+    progressContainer.style.marginTop = '20px';
+    progressContainer.style.position = 'relative';
+    progressContainer.style.height = '32px';
+    progressContainer.style.borderRadius = '8px';
+    progressContainer.style.padding = '4px';
+    progressContainer.style.background = 'rgba(240, 242, 245, 0.4)';
+    progressContainer.style.backdropFilter = 'blur(4px)';
+    progressContainer.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.05), 0 1px 0 rgba(255,255,255,0.7)';
+    progressContainer.style.transition = 'all 0.2s ease';
+    
+    // Create progress track with improved styling
+    const progressTrack = document.createElement('div');
+    progressTrack.className = 'work-progress-track';
+    progressTrack.style.height = '8px';
+    progressTrack.style.width = '100%';
+    progressTrack.style.backgroundColor = 'rgba(220, 224, 228, 0.7)';
+    progressTrack.style.borderRadius = '6px';
+    progressTrack.style.overflow = 'hidden';
+    progressTrack.style.position = 'relative';
+    progressTrack.style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.07)';
+    progressTrack.style.marginTop = '2px';
+    
+    // Create progress fill with improved styling
+    const progressFill = document.createElement('div');
+    progressFill.className = 'work-progress-fill';
+    progressFill.style.height = '100%';
+    progressFill.style.width = '0%';
+    progressFill.style.backgroundColor = 'var(--color-primary)';
+    progressFill.style.position = 'absolute';
+    progressFill.style.left = '0';
+    progressFill.style.top = '0';
+    progressFill.style.transition = 'width 0.5s ease, background-color 0.5s ease, box-shadow 0.5s ease';
+    progressFill.style.boxShadow = '0 0 8px rgba(0, 102, 221, 0.3)';
+    progressFill.style.borderRadius = '6px';
+    progressTrack.appendChild(progressFill);
+    
+    // Add time scale markers (quarters of the workday)
+    const createTimeMarker = (percent, time) => {
+      const marker = document.createElement('div');
+      marker.className = 'time-scale-marker';
+      marker.style.position = 'absolute';
+      marker.style.top = '-1px';
+      marker.style.left = `${percent}%`;
+      marker.style.width = '1px';
+      marker.style.height = '4px';
+      marker.style.backgroundColor = 'rgba(120, 130, 140, 0.3)';
+      marker.title = time;
+      return marker;
+    };
+    
+    // Add scale markers for important times (quarter intervals)
+    progressTrack.appendChild(createTimeMarker(0, '10:00'));
+    progressTrack.appendChild(createTimeMarker(25, '12:15'));
+    progressTrack.appendChild(createTimeMarker(50, '14:30'));
+    progressTrack.appendChild(createTimeMarker(75, '16:45'));
+    progressTrack.appendChild(createTimeMarker(100, '19:00'));
+    
+    // Create time markers with improved styling
+    const startMarker = document.createElement('div');
+    startMarker.className = 'work-progress-marker start-marker';
+    startMarker.textContent = '10:00';
+    startMarker.style.position = 'absolute';
+    startMarker.style.left = '0';
+    startMarker.style.top = '-12px';
+    startMarker.style.fontSize = '9px';
+    startMarker.style.fontWeight = '500';
+    startMarker.style.color = 'var(--color-text-secondary)';
+    
+    const endMarker = document.createElement('div');
+    endMarker.className = 'work-progress-marker end-marker';
+    endMarker.textContent = '19:00';
+    endMarker.style.position = 'absolute';
+    endMarker.style.right = '0';
+    endMarker.style.top = '-12px';
+    endMarker.style.fontSize = '9px';
+    endMarker.style.fontWeight = '500';
+    endMarker.style.color = 'var(--color-text-secondary)';
+    
+    // Create time percentage with improved styling
+    const percentageIndicator = document.createElement('div');
+    percentageIndicator.className = 'work-progress-percentage';
+    percentageIndicator.style.width = '100%';
+    percentageIndicator.style.position = 'absolute';
+    percentageIndicator.style.bottom = '4px';
+    percentageIndicator.style.left = '0';
+    percentageIndicator.style.textAlign = 'center';
+    percentageIndicator.style.fontSize = '11px';
+    percentageIndicator.style.fontWeight = 'bold';
+    percentageIndicator.style.color = 'var(--color-text-secondary)';
+    percentageIndicator.style.padding = '1px 0';
+    percentageIndicator.style.lineHeight = '1.2';
+    percentageIndicator.style.whiteSpace = 'nowrap';
+    percentageIndicator.style.overflow = 'hidden';
+    percentageIndicator.style.textOverflow = 'ellipsis';
+    
+    // Add hover effect to container
+    progressContainer.addEventListener('mouseenter', () => {
+      progressContainer.style.background = 'rgba(245, 247, 250, 0.6)';
+      progressTrack.style.height = '10px';
+      progressTrack.style.marginTop = '1px';
+      progressTrack.style.transition = 'all 0.2s ease';
+    });
+    
+    progressContainer.addEventListener('mouseleave', () => {
+      progressContainer.style.background = 'rgba(240, 242, 245, 0.4)';
+      progressTrack.style.height = '8px';
+      progressTrack.style.marginTop = '2px';
+    });
+    
+    // Add interactive tooltip
+    const timeTooltip = document.createElement('div');
+    timeTooltip.className = 'time-tooltip';
+    timeTooltip.style.position = 'absolute';
+    timeTooltip.style.top = '-30px';
+    timeTooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    timeTooltip.style.color = 'white';
+    timeTooltip.style.padding = '2px 6px';
+    timeTooltip.style.borderRadius = '4px';
+    timeTooltip.style.fontSize = '10px';
+    timeTooltip.style.fontWeight = 'bold';
+    timeTooltip.style.pointerEvents = 'none';
+    timeTooltip.style.opacity = '0';
+    timeTooltip.style.transition = 'opacity 0.2s ease';
+    timeTooltip.style.zIndex = '10';
+    timeTooltip.style.transform = 'translateX(-50%)';
+    timeTooltip.style.whiteSpace = 'nowrap';
+    progressTrack.appendChild(timeTooltip);
+    
+    // Add interactive hover to show time
+    progressTrack.addEventListener('mousemove', (e) => {
+      // Calculate percent position in the track
+      const rect = progressTrack.getBoundingClientRect();
+      const percent = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+      
+      // Convert percent to time
+      const totalMins = (19 - 10) * 60; // 10:00 to 19:00 in minutes
+      const mins = Math.floor((percent / 100) * totalMins);
+      const hours = 10 + Math.floor(mins / 60);
+      const minutes = mins % 60;
+      const timeString = `${hours}:${minutes.toString().padStart(2, '0')}`;
+      
+      // Position and show tooltip
+      timeTooltip.style.left = `${percent}%`;
+      timeTooltip.textContent = timeString;
+      timeTooltip.style.opacity = '1';
+    });
+    
+    progressTrack.addEventListener('mouseleave', () => {
+      timeTooltip.style.opacity = '0';
+    });
+    
+    // Add all progress elements to container
+    progressContainer.appendChild(startMarker);
+    progressContainer.appendChild(endMarker);
+    progressContainer.appendChild(progressTrack);
+    progressContainer.appendChild(percentageIndicator);
+    
+    // Check if progress bar should be shown (default to true)
+    chrome.storage.sync.get(['showProgressBar'], function(result) {
+      const showProgressBar = result.showProgressBar !== false; // Default to true
+      progressContainer.style.display = showProgressBar ? 'block' : 'none';
+    });
+    
+    // Add progress container to flip clock container
+    flipClockContainer.appendChild(progressContainer);
     
     // Get initial time
     const initialTime = clockElement.textContent.trim();
     
     // Setup flip clock with initial time
-    setupFlipClockDigits(flipClockContainer, initialTime);
+    setupFlipClockDigits(clockDigitsContainer, initialTime);
     
     // Insert flip clock after the original clock element
     parentElement.appendChild(flipClockContainer);
     
     // Start updating the clock every second
     updateFlipClock(flipClockContainer, clockElement);
+    
+    // Start updating progress bar every minute
+    updateWorkProgressBar(flipClockContainer);
+    setInterval(() => updateWorkProgressBar(flipClockContainer), 60000);
   });
+}
+
+// Update flip clock every second
+function updateFlipClock(container, clockElement) {
+  // Set interval for updating
+  const updateInterval = setInterval(() => {
+    // Check if container still exists
+    if (!document.body.contains(container)) {
+      clearInterval(updateInterval);
+    return;
+  }
+  
+    // Get current time from the clock element
+    const currentTime = clockElement.textContent.trim();
+    
+    // Get the digits container
+    const digitsContainer = container.querySelector('.flip-clock-digits-container');
+    if (!digitsContainer) return;
+    
+    // Handle default style display differently
+    const defaultDisplay = digitsContainer.querySelector('.default-time-display');
+    if (defaultDisplay) {
+      // Get time parts
+      const parts = currentTime.split(':');
+      const [hours, minutes] = parts;
+      
+      // Get hour/minute span and update it
+      const hoursMinutes = defaultDisplay.querySelector('span:first-child');
+      if (hoursMinutes) {
+        hoursMinutes.textContent = `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+      }
+      
+      // Get seconds span and update it
+      if (parts.length > 2) {
+        const seconds = parts[2] || '00';
+        const secondsEl = defaultDisplay.querySelector('span[data-position="seconds"]');
+        if (secondsEl) {
+          secondsEl.textContent = seconds.padStart(2, '0');
+        }
+      }
+      
+      // Update colors based on working status
+      updateFlipClockColors(container);
+      return;
+    }
+    
+    // We're using flip digits - handle as before
+    // Get all digit elements
+    const digitElements = digitsContainer.querySelectorAll('.flip-clock-digit');
+    
+    // Normalize time format
+    const normalizedTime = normalizeTimeFormat(currentTime);
+    
+    // Update each digit if needed
+    for (let i = 0; i < normalizedTime.length; i++) {
+      const char = normalizedTime[i];
+      if (char === ':') continue;
+      
+      // Find corresponding digit element
+      const index = i - Math.floor(i/3); // Adjust for colons
+      const digitElement = digitElements[index];
+      
+      if (!digitElement) continue;
+      
+      // Check if digit needs to be updated
+      if (digitElement.dataset.digit !== char) {
+        // Update the digit
+        digitElement.dataset.digit = char;
+        
+        // Get the flip card
+        const flipCard = digitElement.querySelector('.flip-card');
+        if (!flipCard) continue;
+        
+        // Update front and back sides
+        const front = flipCard.querySelector('.flip-card-front');
+        const back = flipCard.querySelector('.flip-card-back');
+        
+        if (front && back) {
+          front.textContent = char;
+          back.textContent = char;
+          
+          // Perform flip animation
+          flipCard.style.transform = 'rotateX(180deg)';
+          
+          // Reset flip after animation
+          setTimeout(() => {
+            flipCard.style.transition = 'none';
+            flipCard.style.transform = 'rotateX(0deg)';
+            setTimeout(() => {
+              flipCard.style.transition = 'transform 250ms ease';
+            }, 50);
+          }, 250);
+        }
+      }
+    }
+    
+    // Update colors based on working status
+    updateFlipClockColors(container);
+  }, 1000);
+}
+
+// Function to update the work progress bar
+function updateWorkProgressBar(container) {
+  const progressContainer = container.querySelector('.work-progress-container');
+  if (!progressContainer) return;
+  
+  const progressTrack = progressContainer.querySelector('.work-progress-track');
+  const progressFill = progressContainer.querySelector('.work-progress-fill');
+  const percentageIndicator = progressContainer.querySelector('.work-progress-percentage');
+  
+  // Define work hours
+  const workStartHour = 10; // 10:00
+  const workEndHour = 19;   // 19:00
+  const workTotalMinutes = (workEndHour - workStartHour) * 60; // 9 hours = 540 minutes
+  
+  // Get current time
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  const currentTimeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+  
+  // Add current time indicator
+  let timeIndicator = progressContainer.querySelector('.current-time-indicator');
+  if (!timeIndicator) {
+    timeIndicator = document.createElement('div');
+    timeIndicator.className = 'current-time-indicator';
+    timeIndicator.style.position = 'absolute';
+    timeIndicator.style.top = '2px';
+    timeIndicator.style.width = '3px';
+    timeIndicator.style.height = '12px';
+    timeIndicator.style.backgroundColor = '#FF5722';
+    timeIndicator.style.zIndex = '2';
+    timeIndicator.style.boxShadow = '0 0 4px rgba(255, 87, 34, 0.6)';
+    timeIndicator.style.borderRadius = '1.5px';
+    timeIndicator.style.transform = 'translateX(-50%)';
+    
+    const timeLabel = document.createElement('div');
+    timeLabel.className = 'current-time-label';
+    timeLabel.style.position = 'absolute';
+    timeLabel.style.top = '-15px';
+    timeLabel.style.fontSize = '10px';
+    timeLabel.style.fontWeight = 'bold';
+    timeLabel.style.color = '#FF5722';
+    timeLabel.style.transform = 'translateX(-50%)';
+    timeLabel.style.whiteSpace = 'nowrap';
+    timeLabel.style.textShadow = '0 0 2px rgba(255, 255, 255, 0.8)';
+    
+    timeIndicator.appendChild(timeLabel);
+    progressTrack.appendChild(timeIndicator);
+  }
+  
+  // Calculate percentage for time indicator position relative to 24h day
+  const currentMinuteOfDay = currentHour * 60 + currentMinute;
+  const workdayStart = workStartHour * 60;
+  const workdayEnd = workEndHour * 60;
+  
+  // Calculate where to put the time indicator on the track
+  let dailyPercentage;
+  if (currentMinuteOfDay < workdayStart) {
+    dailyPercentage = 0; // Before workday starts, pin to beginning
+  } else if (currentMinuteOfDay > workdayEnd) {
+    dailyPercentage = 100; // After workday ends, pin to end
+  } else {
+    // During workday, calculate the accurate position
+    dailyPercentage = ((currentMinuteOfDay - workdayStart) / workTotalMinutes) * 100;
+  }
+  
+  timeIndicator.style.left = `${dailyPercentage}%`;
+  
+  const timeLabel = timeIndicator.querySelector('.current-time-label');
+  timeLabel.textContent = currentTimeStr;
+  
+  // Update indicator visibility based on whether we're within ±3 hours of the workday
+  const isNearWorkday = currentMinuteOfDay >= (workdayStart - 180) && 
+                         currentMinuteOfDay <= (workdayEnd + 180);
+  timeIndicator.style.opacity = isNearWorkday ? '1' : '0.5';
+  
+  // Calculate progress
+  let progress = 0;
+  let progressText = '';
+  
+  if (currentHour < workStartHour) {
+    // Before work hours
+    const minutesUntilStart = workdayStart - currentMinuteOfDay;
+    const hoursUntil = Math.floor(minutesUntilStart / 60);
+    const minsUntil = minutesUntilStart % 60;
+    
+    progress = 0;
+    progressText = `出勤時間まではあと ${currentTimeStr} • ${hoursUntil}h ${minsUntil}m `;
+    
+    // Update visual cues
+    progressFill.style.backgroundColor = 'rgba(120, 130, 140, 0.4)';
+    progressFill.style.boxShadow = 'none';
+    
+  } else if (currentHour >= workEndHour) {
+    // After work hours
+    const minutesAfterEnd = currentMinuteOfDay - workdayEnd;
+    const hoursAfter = Math.floor(minutesAfterEnd / 60);
+    const minsAfter = minutesAfterEnd % 60;
+    
+    progress = 100;
+    progressText = `${currentTimeStr} • 定時は (${hoursAfter}h ${minsAfter}m 前)`;
+    
+    // Update visual cues for completed workday
+    progressFill.style.backgroundColor = '#28A745'; // Green when complete
+    progressFill.style.boxShadow = '0 0 8px rgba(40, 167, 69, 0.3)';
+    
+  } else {
+    // During work hours
+    const minutesSinceStart = currentMinuteOfDay - workdayStart;
+    progress = Math.min(100, (minutesSinceStart / workTotalMinutes) * 100);
+    
+    // Calculate time remaining
+    const minutesRemaining = workTotalMinutes - minutesSinceStart;
+    const hoursRemaining = Math.floor(minutesRemaining / 60);
+    const minsRemaining = minutesRemaining % 60;
+    
+    // Calculate percentage with more precision
+    const percentage = progress.toFixed(1);
+    
+    progressText = `${currentTimeStr} • ${percentage}% 経過 • 残り： ${hoursRemaining}h ${minsRemaining}m `;
+    
+    // Update color based on progress
+    if (progress >= 90) {
+      progressFill.style.backgroundColor = '#28A745'; // Green when almost complete
+      progressFill.style.boxShadow = '0 0 8px rgba(40, 167, 69, 0.3)';
+    } else if (progress >= 75) {
+      progressFill.style.backgroundColor = '#17a2b8'; // Teal for good progress
+      progressFill.style.boxShadow = '0 0 8px rgba(23, 162, 184, 0.3)';
+    } else if (progress >= 50) {
+      progressFill.style.backgroundColor = '#FFC107'; // Yellow for halfway
+      progressFill.style.boxShadow = '0 0 8px rgba(255, 193, 7, 0.3)';
+    } else if (progress >= 25) {
+      progressFill.style.backgroundColor = '#fd7e14'; // Orange for getting started
+      progressFill.style.boxShadow = '0 0 8px rgba(253, 126, 20, 0.3)';
+    } else {
+      progressFill.style.backgroundColor = 'var(--color-primary)'; // Default blue
+      progressFill.style.boxShadow = '0 0 8px rgba(0, 102, 221, 0.3)';
+    }
+  }
+  
+  // Animate the progress bar smoothly
+  progressFill.style.width = `${progress}%`;
+  
+  // Update the text indicator
+  percentageIndicator.textContent = progressText;
+  
+  // Visual pulse effect for time indicator
+  if (!timeIndicator.dataset.animating) {
+    timeIndicator.dataset.animating = 'true';
+    
+    // Add subtle pulse animation
+    const pulseAnimation = () => {
+      timeIndicator.animate(
+        [
+          { boxShadow: '0 0 4px rgba(255, 87, 34, 0.6)' },
+          { boxShadow: '0 0 8px rgba(255, 87, 34, 0.8)' },
+          { boxShadow: '0 0 4px rgba(255, 87, 34, 0.6)' }
+        ],
+        {
+          duration: 2000,
+          iterations: Infinity
+        }
+      );
+    };
+    
+    pulseAnimation();
+  }
 }
 
 // Setup the flip clock digits
@@ -540,7 +1006,17 @@ function setupFlipClockDigits(container, timeString) {
   // Normalize time format - ensure it's HH:MM:SS
   const normalizedTime = normalizeTimeFormat(timeString);
   
-  // Create digit elements for each character in the time
+  // Get current clock style setting
+  chrome.storage.sync.get(['clockStyle'], function(result) {
+    const clockStyle = result.clockStyle || 'gradient';
+    
+    // If clockStyle is 'default', create a simple time display without flip digits
+    if (clockStyle === 'default') {
+      createDefaultTimeDisplay(container, normalizedTime);
+      return;
+    }
+    
+    // Otherwise, create digit elements for each character in the time
   for (let i = 0; i < normalizedTime.length; i++) {
     const char = normalizedTime[i];
     
@@ -550,34 +1026,77 @@ function setupFlipClockDigits(container, timeString) {
       colonElement.className = 'colon';
       colonElement.textContent = ':';
       colonElement.style.display = 'flex';
-      colonElement.style.alignItems = 'center'; // Vertically center the colon
+      colonElement.style.alignItems = 'center';
       colonElement.style.justifyContent = 'center';
-      colonElement.style.fontSize = '3rem'; // Larger font to match digits
+      colonElement.style.fontSize = '3rem';
       colonElement.style.width = '30px';
-      colonElement.style.height = '120px'; // Same height as digits
-
-      // Set colon color based on working status
-      const workingStatus = document.getElementById('working_status');
-      let colonColor = 'var(--color-primary)';
-      if (workingStatus) {
-        const statusText = workingStatus.textContent.trim().toLowerCase();
-        if (statusText.includes('勤務中') || statusText.includes('working')) {
-          colonColor = 'var(--color-accent)';
-        } else if (statusText.includes('退室中') || statusText.includes('leaving') || statusText.includes('off')) {
-          colonColor = 'var(--color-secondary)';
-        } else if (statusText.includes('休憩') || statusText.includes('break')) {
-          colonColor = 'var(--color-warning)';
-        }
-      }
-      colonElement.style.color = colonColor;
+      colonElement.style.height = '120px';
+      colonElement.style.color = 'var(--color-primary)';
       colonElement.style.fontWeight = 'bold';
+      
+      // Set position data for seconds toggle
+      if (i >= 5) { // Second colon is for seconds
+        colonElement.dataset.position = 'seconds-colon';
+      }
+      
       container.appendChild(colonElement);
     } else {
-      // Create digit element
+      // Create digit element with position info
       const digitElement = createFlipDigit(char);
+      
+      // Set position data for seconds toggle
+      if (i >= 6) { // Positions 6-7 are seconds
+        digitElement.dataset.position = 'seconds';
+      }
+      
+      // Store index for easier reference
+      digitElement.dataset.index = i;
+      
       container.appendChild(digitElement);
     }
   }
+  });
+  
+  // Apply any saved settings
+  setTimeout(() => applyClockSettings(container.parentElement), 0);
+}
+
+// Create a default time display without flip cards
+function createDefaultTimeDisplay(container, timeString) {
+  const displayElement = document.createElement('div');
+  displayElement.className = 'default-time-display';
+  displayElement.style.display = 'flex';
+  displayElement.style.alignItems = 'center';
+  displayElement.style.justifyContent = 'center';
+  displayElement.style.fontSize = '3.5rem';
+  displayElement.style.fontWeight = 'bold';
+  displayElement.style.color = 'var(--color-primary-dark, #0047AB)';
+  displayElement.style.fontFamily = 'var(--font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif)';
+  displayElement.style.padding = '10px 15px';
+  displayElement.style.borderRadius = '8px';
+  displayElement.style.background = 'linear-gradient(to bottom, rgba(255,255,255,0.8), rgba(240,240,240,0.5))';
+  displayElement.style.textShadow = '0 1px 0 rgba(255,255,255,0.8)';
+  displayElement.style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 4px rgba(0,0,0,0.1)';
+  
+  // Create time parts for seconds toggling
+  const parts = timeString.split(':');
+  const hoursMinutes = document.createElement('span');
+  hoursMinutes.textContent = `${parts[0]}:${parts[1]}`;
+  displayElement.appendChild(hoursMinutes);
+  
+  if (parts.length > 2) {
+    const colonSeconds = document.createElement('span');
+    colonSeconds.textContent = ':';
+    colonSeconds.dataset.position = 'seconds-colon';
+    displayElement.appendChild(colonSeconds);
+    
+    const seconds = document.createElement('span');
+    seconds.textContent = parts[2];
+    seconds.dataset.position = 'seconds';
+    displayElement.appendChild(seconds);
+  }
+  
+  container.appendChild(displayElement);
 }
 
 // Create a single flip digit element with modern styling
@@ -597,30 +1116,15 @@ function createFlipDigit(digit) {
   flipCardBack.className = 'flip-card-back';
   flipCardBack.textContent = digit;
   
-  // Determine working status color
-  const workingStatus = document.getElementById('working_status');
-  let cardColor = 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)';
-  
-  if (workingStatus) {
-    const statusText = workingStatus.textContent.trim().toLowerCase();
-    if (statusText.includes('勤務中') || statusText.includes('working')) {
-      // Working status - green gradient
-      cardColor = 'linear-gradient(135deg, var(--color-accent-dark) 0%, var(--color-accent) 100%)';
-    } else if (statusText.includes('退室中') || statusText.includes('leaving') || statusText.includes('off')) {
-      // Leaving/Off status - grey gradient
-      cardColor = 'linear-gradient(135deg, var(--color-secondary-dark) 0%, var(--color-secondary) 100%)';
-    } else if (statusText.includes('休憩') || statusText.includes('break')) {
-      // Break status - yellow gradient
-      cardColor = 'linear-gradient(135deg, var(--color-warning-dark, #f39c12) 0%, var(--color-warning) 100%)';
-    }
-  }
+  // Default color - will be updated by updateFlipClockColors
+  const cardColor = 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)';
   
   // Add modern styling directly - 2x larger with gradient
   digitElement.style.position = 'relative';
   digitElement.style.width = '80px'; // 2x larger (was 40px)
   digitElement.style.height = '120px'; // 2x larger (was 60px)
   digitElement.style.margin = '0 4px'; // Scale up margins too
-  digitElement.style.perspective = '800px'; // Increase perspective for larger card
+  digitElement.style.perspective = '800px';
   
   flipCard.style.position = 'relative';
   flipCard.style.width = '100%';
@@ -628,25 +1132,37 @@ function createFlipDigit(digit) {
   flipCard.style.transformStyle = 'preserve-3d';
   flipCard.style.transition = 'transform 250ms ease';
   
-  const commonCardStyles = `
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: ${cardColor};
-    color: white;
-    font-size: 3rem; // Larger font for larger card
-    font-weight: 700;
-    border-radius: 12px; // Increased corner radius
-    box-shadow: var(--shadow-md);
-  `;
+  // Apply common styles to front and back
+  flipCardFront.style.position = 'absolute';
+  flipCardFront.style.width = '100%';
+  flipCardFront.style.height = '100%';
+  flipCardFront.style.backfaceVisibility = 'hidden';
+  flipCardFront.style.display = 'flex';
+  flipCardFront.style.alignItems = 'center';
+  flipCardFront.style.justifyContent = 'center';
+  flipCardFront.style.background = cardColor;
+  flipCardFront.style.color = 'white';
+  flipCardFront.style.fontSize = '3.5rem';
+  flipCardFront.style.fontWeight = 'bold';
+  flipCardFront.style.borderRadius = '8px';
+  flipCardFront.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
   
-  flipCardFront.style.cssText = commonCardStyles;
-  flipCardBack.style.cssText = commonCardStyles;
+  flipCardBack.style.position = 'absolute';
+  flipCardBack.style.width = '100%';
+  flipCardBack.style.height = '100%';
+  flipCardBack.style.backfaceVisibility = 'hidden';
+  flipCardBack.style.display = 'flex';
+  flipCardBack.style.alignItems = 'center';
+  flipCardBack.style.justifyContent = 'center';
+  flipCardBack.style.background = cardColor;
+  flipCardBack.style.color = 'white';
+  flipCardBack.style.fontSize = '3.5rem';
+  flipCardBack.style.fontWeight = 'bold';
+  flipCardBack.style.transform = 'rotateX(180deg)';
+  flipCardBack.style.borderRadius = '8px';
+  flipCardBack.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
   
+  // Append elements
   flipCard.appendChild(flipCardFront);
   flipCard.appendChild(flipCardBack);
   digitElement.appendChild(flipCard);
@@ -656,13 +1172,42 @@ function createFlipDigit(digit) {
 
 // Update the flip clock
 function updateFlipClock(container, clockElement) {
+  // Set up a MutationObserver to watch for status changes
+  const workingStatusObserver = new MutationObserver((mutations) => {
+    updateFlipClockColors(container);
+  });
+  
+  // Find and observe the working status element
+  const workingStatus = document.getElementById('working_status');
+  if (workingStatus) {
+    workingStatusObserver.observe(workingStatus, { 
+      childList: true, 
+      characterData: true, 
+      subtree: true 
+    });
+    
+    // Also observe parent in case element gets replaced
+    if (workingStatus.parentElement) {
+      workingStatusObserver.observe(workingStatus.parentElement, { 
+        childList: true 
+      });
+    }
+  }
+  
+  // Initial color update
+  updateFlipClockColors(container);
+  
   setInterval(() => {
     // Get current time from the original clock element
     const newTime = clockElement.textContent.trim();
     const normalizedNewTime = normalizeTimeFormat(newTime);
     
+    // Find the digits container
+    const digitsContainer = container.querySelector('.flip-clock-digits-container');
+    if (!digitsContainer) return;
+    
     // Get existing digits
-    const digitElements = container.querySelectorAll('.flip-clock-digit');
+    const digitElements = digitsContainer.querySelectorAll('.flip-clock-digit');
     
     // Update each digit as needed
     let digitIndex = 0;
@@ -671,6 +1216,8 @@ function updateFlipClock(container, clockElement) {
       
       if (char !== ':') {
         const digitElement = digitElements[digitIndex];
+        if (!digitElement) continue;
+        
         const currentDigit = digitElement.dataset.digit;
         
         // If digit has changed, animate it
@@ -707,6 +1254,47 @@ function updateFlipClock(container, clockElement) {
   }, 1000);
 }
 
+// New function to determine working status colors and update the clock
+function updateFlipClockColors(container) {
+  // Get current working status
+  const workingStatus = document.getElementById('working_status');
+  let cardColor = 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)';
+  let colonColor = 'var(--color-primary)';
+  
+  if (workingStatus) {
+    const statusText = workingStatus.textContent.trim().toLowerCase();
+    if (statusText.includes('勤務中') || statusText.includes('working')) {
+      // Working - blue gradient
+      cardColor = 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)';
+      colonColor = '#06F';
+    } else if (statusText.includes('退室中') || statusText.includes('未出勤') || statusText.includes('Not Arrived')) {
+      // Left - grey gradient
+      cardColor = 'linear-gradient(135deg, #6c757d 0%, #495057 100%)';
+      colonColor = '#6c757d';
+    }
+  }
+  
+  // Find the digits container
+  const digitsContainer = container.querySelector('.flip-clock-digits-container');
+  if (!digitsContainer) return;
+  
+  // Update digit colors
+  const digitElements = digitsContainer.querySelectorAll('.flip-clock-digit');
+  digitElements.forEach(digit => {
+    const front = digit.querySelector('.flip-card-front');
+    const back = digit.querySelector('.flip-card-back');
+    
+    if (front) front.style.background = cardColor;
+    if (back) back.style.background = cardColor;
+  });
+  
+  // Update colon colors
+  const colonElements = digitsContainer.querySelectorAll('.colon');
+  colonElements.forEach(colon => {
+    colon.style.color = colonColor;
+  });
+}
+
 // Normalize time format to ensure it's HH:MM:SS
 function normalizeTimeFormat(timeString) {
   // If it's already in correct format, return it
@@ -731,7 +1319,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   if (message.action === 'toggleEnhancer') {
     if (message.enabled) {
       document.body.classList.add('jobcan-enhanced');
-      enhanceDropdownMenus();
       fixDuplicateSidemenus();
       enhanceSidemenuBehavior();
       setupHeaderVisibility();
@@ -743,6 +1330,21 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   } else if (message.action === 'toggleDarkMode') {
     // Dark mode is a future feature
     console.log('Dark mode toggled:', message.enabled);
+  } else if (message.action === 'updateClockSettings') {
+    // Check if clock style has changed
+    if (message.clockStyle !== undefined) {
+      updateClockStyle(message.clockStyle);
+    } else {
+      // Apply the updated settings
+      applyClockSettings();
+    }
+    
+    // Update progress bars if setting changed
+    if (message.showProgressBar !== undefined) {
+      document.querySelectorAll('.work-progress-container').forEach(container => {
+        container.style.display = message.showProgressBar ? 'block' : 'none';
+      });
+    }
   }
 });
 
@@ -2948,167 +3550,19 @@ function fixSettingsIcon() {
       // Mark as enhanced
       button.setAttribute('data-enhanced', 'true');
       
+      // Keep the original button's appearance and behavior instead of replacing it with a circular button
+      // Just enhance it with the original functionality
+      
       // Get the original href
       const originalHref = button.getAttribute('href');
       
       // Get the original title
       const originalTitle = button.getAttribute('title') || '設定';
       
-      // Create dropdown container
-      const dropdownContainer = document.createElement('div');
-      dropdownContainer.className = 'dropdown settings-dropdown';
-      dropdownContainer.style.position = 'relative';
-      dropdownContainer.style.display = 'inline-block';
-      
-      // Create dropdown toggle
-      const dropdownToggle = document.createElement('a');
-      dropdownToggle.className = 'd-block dropdown-toggle';
-      dropdownToggle.href = '#';
-      dropdownToggle.setAttribute('role', 'button');
-      dropdownToggle.id = 'rollover-menu-link';
-      dropdownToggle.setAttribute('data-toggle', 'dropdown');
-      dropdownToggle.setAttribute('aria-haspopup', 'true');
-      dropdownToggle.setAttribute('aria-expanded', 'false');
-      dropdownToggle.textContent = '...';
-      dropdownToggle.style.display = 'flex';
-      dropdownToggle.style.alignItems = 'center';
-      dropdownToggle.style.justifyContent = 'center';
-      dropdownToggle.style.backgroundColor = 'rgba(240, 240, 240, 0.4)';
-      dropdownToggle.style.borderRadius = '50%';
-      dropdownToggle.style.width = '36px';
-      dropdownToggle.style.height = '36px';
-      dropdownToggle.style.transition = 'all 0.3s ease';
-      dropdownToggle.style.color = 'var(--secondary-color, #6c757d)';
-      dropdownToggle.style.textDecoration = 'none';
-      dropdownToggle.style.fontWeight = 'bold';
-      
-      // Create dropdown menu
-      const dropdownMenu = document.createElement('div');
-      dropdownMenu.className = 'dropdown-menu settings-dropdown-menu';
-      dropdownMenu.style.position = 'absolute';
-      dropdownMenu.style.right = '0';
-      dropdownMenu.style.top = '100%';
-      dropdownMenu.style.backgroundColor = '#fff';
-      dropdownMenu.style.borderRadius = '8px';
-      dropdownMenu.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-      dropdownMenu.style.padding = '8px 0';
-      dropdownMenu.style.minWidth = '180px';
-      dropdownMenu.style.zIndex = '1000';
-      dropdownMenu.style.display = 'none';
-      dropdownMenu.style.marginTop = '8px';
-      dropdownMenu.style.border = '1px solid rgba(228, 230, 235, 0.8)';
-      
-      // Add a subtle header to the dropdown
-      const dropdownHeader = document.createElement('div');
-      dropdownHeader.className = 'dropdown-header';
-      dropdownHeader.textContent = 'アカウント';
-      dropdownHeader.style.fontSize = '12px';
-      dropdownHeader.style.fontWeight = '600';
-      dropdownHeader.style.color = '#6c757d';
-      dropdownHeader.style.padding = '8px 16px 4px';
-      dropdownHeader.style.opacity = '0.7';
-      dropdownHeader.style.textTransform = 'uppercase';
-      dropdownMenu.appendChild(dropdownHeader);
-      
-      // Create settings link (original)
-      const settingsLink = document.createElement('a');
-      settingsLink.className = 'jbcid-menu-item dropdown-item';
-      settingsLink.href = originalHref;
-      settingsLink.textContent = originalTitle;
-      settingsLink.style.padding = '8px 16px';
-      settingsLink.style.fontSize = '14px';
-      settingsLink.style.color = 'var(--secondary-color, #6c757d)';
-      settingsLink.style.textDecoration = 'none';
-      settingsLink.style.display = 'block';
-      settingsLink.style.transition = 'all 0.2s ease';
-      
-      // Create password change link
-      const passwordLink = document.createElement('a');
-      passwordLink.className = 'jbcid-menu-item dropdown-item';
-      passwordLink.href = 'https://id.jobcan.jp/account/password';
-      passwordLink.target = '_blank';
-      passwordLink.textContent = 'パスワード変更';
-      passwordLink.style.padding = '8px 16px';
-      passwordLink.style.fontSize = '14px';
-      passwordLink.style.color = 'var(--secondary-color, #6c757d)';
-      passwordLink.style.textDecoration = 'none';
-      passwordLink.style.display = 'block';
-      passwordLink.style.transition = 'all 0.2s ease';
-      
-      // Create logout link
-      const logoutLink = document.createElement('a');
-      logoutLink.className = 'jbcid-menu-item dropdown-item';
-      logoutLink.href = '/employee/logout/';
-      logoutLink.textContent = 'ログアウト';
-      logoutLink.style.padding = '8px 16px';
-      logoutLink.style.fontSize = '14px';
-      logoutLink.style.color = 'var(--secondary-color, #6c757d)';
-      logoutLink.style.textDecoration = 'none';
-      logoutLink.style.display = 'block';
-      logoutLink.style.transition = 'all 0.2s ease';
-      
-      // Add hover effects for all menu items
-      [settingsLink, passwordLink, logoutLink].forEach(link => {
-        link.addEventListener('mouseenter', () => {
-          link.style.backgroundColor = 'rgba(240, 240, 240, 0.6)';
-          link.style.color = 'var(--primary-color, #0078ff)';
-        });
-        
-        link.addEventListener('mouseleave', () => {
-          link.style.backgroundColor = 'transparent';
-          link.style.color = 'var(--secondary-color, #6c757d)';
-        });
-      });
-      
-      // Add links to dropdown menu
-      dropdownMenu.appendChild(dropdownHeader);  // Add the header first
-      dropdownMenu.appendChild(settingsLink);
-      dropdownMenu.appendChild(passwordLink);
-      dropdownMenu.appendChild(logoutLink);
-      
-      // Add toggle and menu to container
-      dropdownContainer.appendChild(dropdownToggle);
-      dropdownContainer.appendChild(dropdownMenu);
-      
-      // Replace the original button with our dropdown
-      button.parentNode.replaceChild(dropdownContainer, button);
-      
-      // Add toggle functionality
-      dropdownToggle.addEventListener('click', (e) => {
-        e.preventDefault();
-        const isExpanded = dropdownToggle.getAttribute('aria-expanded') === 'true';
-        
-        if (isExpanded) {
-          dropdownMenu.style.display = 'none';
-          dropdownToggle.setAttribute('aria-expanded', 'false');
-        } else {
-          dropdownMenu.style.display = 'block';
-          dropdownToggle.setAttribute('aria-expanded', 'true');
-        }
-      });
-      
-      // Close the dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!dropdownContainer.contains(e.target)) {
-          dropdownMenu.style.display = 'none';
-          dropdownToggle.setAttribute('aria-expanded', 'false');
-        }
-      });
-      
-      // Add hover effect for dropdown toggle
-      dropdownToggle.addEventListener('mouseenter', () => {
-        dropdownToggle.style.backgroundColor = 'rgba(230, 230, 230, 0.8)';
-        dropdownToggle.style.transform = 'translateY(-1px)';
-        dropdownToggle.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
-        dropdownToggle.style.color = 'var(--primary-color, #0078ff)';
-      });
-      
-      dropdownToggle.addEventListener('mouseleave', () => {
-        dropdownToggle.style.backgroundColor = 'rgba(240, 240, 240, 0.4)';
-        dropdownToggle.style.transform = 'translateY(0)';
-        dropdownToggle.style.boxShadow = 'none';
-        dropdownToggle.style.color = 'var(--secondary-color, #6c757d)';
-      });
+      // Update the button text if it's empty
+      if (!button.textContent.trim()) {
+        button.textContent = originalTitle;
+      }
     });
   };
   
@@ -3146,4 +3600,443 @@ function fixSettingsIcon() {
   
   // Also run a periodic check to catch any elements that might have been missed
   setInterval(fixSettingsButtons, 2000);
+}
+
+// Function to make sign-in-right-container folded by default with toggle button
+function foldSignInRightContainer() {
+  const container = document.querySelector('.col-sm-6.sign-in-right-container');
+  if (!container || container.dataset.enhanced) return;
+  
+  // Mark as enhanced to prevent duplicate processing
+  container.dataset.enhanced = 'true';
+  
+  // Ensure the parent element is positioned relative for absolute positioning of the toggle button
+  const parentElem = container.parentNode;
+  if (parentElem && getComputedStyle(parentElem).position === 'static') {
+    parentElem.style.position = 'relative';
+  }
+  
+  // Hide the container initially
+  container.style.display = 'none';
+
+  // Hide the sign-in-bg element
+  const signInBg = document.querySelector('.sign-in-bg');
+  if (signInBg) {
+    signInBg.style.display = 'none';
+  }
+  
+  // Update container styling
+  container.style.backgroundColor = 'white';
+  container.style.display = 'none';
+  container.style.textAlign = 'center';
+  container.style.borderRadius = '12px';
+  container.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+  container.style.position = 'relative';
+  container.style.padding = '20px';
+  
+  // Center all inner content using flexbox
+  container.style.display = 'none'; // Keep initially hidden
+  container.style.flexDirection = 'column';
+  container.style.alignItems = 'center';
+  container.style.justifyContent = 'center';
+  
+  // Apply center alignment to all direct children
+  Array.from(container.children).forEach(child => {
+    if (child.style) {
+      child.style.margin = '0 auto';
+      child.style.maxWidth = '100%';
+      
+      // If the child is a container itself, center its contents too
+      if (child.children && child.children.length > 0) {
+        child.style.display = 'flex';
+        child.style.flexDirection = 'column';
+        child.style.alignItems = 'center';
+        child.style.justifyContent = 'center';
+      }
+    }
+  });
+  
+  // Create toggle button
+  const toggleButton = document.createElement('button');
+  toggleButton.className = 'sign-in-toggle-btn';
+  toggleButton.textContent = '広告を表示';
+  toggleButton.setAttribute('type', 'button');
+  toggleButton.style.cssText = 'margin: 4px auto; display: block; padding: 1px 6px; background-color: white; color: #aaa; border: 1px solid #ddd; border-radius: 10px; cursor: pointer; font-size: 10px; opacity: 0.6; transition: all 0.2s ease; height: 18px; line-height: 1;';
+  // Ensure the button is on top
+  toggleButton.style.zIndex = '1000';
+  
+  // Add hover effect
+  toggleButton.addEventListener('mouseenter', () => {
+    toggleButton.style.opacity = '0.9';
+  });
+  
+  toggleButton.addEventListener('mouseleave', () => {
+    toggleButton.style.opacity = '0.6';
+  });
+  
+  // Add button click handler
+  toggleButton.addEventListener('click', () => {
+    const isShowing = container.style.display !== 'none';
+    
+    if (isShowing) {
+      // Hide the container
+      container.style.display = 'none';
+      
+      // Restore the regular button
+      toggleButton.textContent = '広告を表示';
+      toggleButton.style.position = 'absolute';
+      toggleButton.style.top = '0';
+      toggleButton.style.right = '0';
+      toggleButton.style.margin = '4px';
+      toggleButton.style.display = 'block';
+      toggleButton.style.padding = '1px 6px';
+      toggleButton.style.borderRadius = '10px';
+      toggleButton.style.fontSize = '10px';
+      toggleButton.style.opacity = '0.6';
+      toggleButton.style.width = 'auto';
+      toggleButton.style.height = '18px';
+      toggleButton.style.lineHeight = '1';
+      toggleButton.style.backgroundColor = 'white';
+      toggleButton.style.color = '#aaa';
+      toggleButton.style.border = '1px solid #ddd';
+      toggleButton.style.zIndex = '1000';
+      
+      // Move button before container
+      container.parentNode.insertBefore(toggleButton, container);
+    } else {
+      // Show the container
+      container.style.display = 'flex'; // Use flex display when showing
+      
+      // Change button to round close button at top right
+      toggleButton.textContent = '×';
+      toggleButton.style.position = 'absolute';
+      toggleButton.style.top = '10px';
+      toggleButton.style.right = '10px';
+      toggleButton.style.margin = '0';
+      toggleButton.style.padding = '0';
+      toggleButton.style.width = '24px';
+      toggleButton.style.height = '24px';
+      toggleButton.style.borderRadius = '50%';
+      toggleButton.style.display = 'flex';
+      toggleButton.style.alignItems = 'center';
+      toggleButton.style.justifyContent = 'center';
+      toggleButton.style.fontSize = '16px';
+      toggleButton.style.lineHeight = '1';
+      toggleButton.style.fontWeight = 'bold';
+      toggleButton.style.zIndex = '1000';
+      
+      // Move button inside container
+      container.appendChild(toggleButton);
+    }
+  });
+  
+  // Position button at top right initially
+  toggleButton.style.position = 'absolute';
+  toggleButton.style.top = '0';
+  toggleButton.style.right = '0';
+  toggleButton.style.margin = '4px';
+  toggleButton.style.zIndex = '1000';
+  
+  // Insert button before the container
+  container.parentNode.insertBefore(toggleButton, container);
+}
+
+// Apply clock settings to all flip clocks
+function applyClockSettings(specificContainer = null) {
+  chrome.storage.sync.get(['clockStyle', 'clockSize', 'showSeconds', 'showProgressBar'], function(result) {
+    const clockStyle = result.clockStyle || 'gradient';
+    const clockSize = result.clockSize || 'medium';
+    const showSeconds = result.showSeconds !== false; // Default to true
+    const showProgressBar = result.showProgressBar !== false; // Default to true
+    
+    // Get all flip clock containers or just the specific one
+    const containers = specificContainer ? 
+      [specificContainer] : 
+      document.querySelectorAll('.flip-clock-container');
+    
+    containers.forEach(container => {
+      // Handle default style (non-flip) separately
+      const defaultDisplay = container.querySelector('.default-time-display');
+      if (defaultDisplay) {
+        // Apply size to default display
+        const fontSize = clockSize === 'small' ? '2.5rem' : clockSize === 'large' ? '4.5rem' : '3.5rem';
+        defaultDisplay.style.fontSize = fontSize;
+        
+        // Apply seconds visibility to default display
+        const secondsElement = defaultDisplay.querySelector('span[data-position="seconds"]');
+        const secondsColon = defaultDisplay.querySelector('span[data-position="seconds-colon"]');
+        
+        if (secondsElement) {
+          secondsElement.style.display = showSeconds ? 'inline' : 'none';
+        }
+        if (secondsColon) {
+          secondsColon.style.display = showSeconds ? 'inline' : 'none';
+        }
+        
+        return; // Skip the rest since we're using default display
+      }
+      
+      // For flip clock styles
+      const digitElements = container.querySelectorAll('.flip-clock-digit');
+      digitElements.forEach(digit => {
+        const front = digit.querySelector('.flip-card-front');
+        const back = digit.querySelector('.flip-card-back');
+        
+        if (!front || !back) return;
+        
+        // Reset all style-specific classes
+        digit.classList.remove('style-gradient', 'style-flat', 'style-modern');
+        digit.classList.add(`style-${clockStyle}`);
+        
+        // Apply specific styles based on clockStyle
+        if (clockStyle === 'gradient') {
+          front.style.background = 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)';
+          back.style.background = 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)';
+          front.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+          back.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+        } else if (clockStyle === 'flat') {
+          front.style.background = 'var(--color-primary)';
+          back.style.background = 'var(--color-primary)';
+          front.style.boxShadow = 'none';
+          back.style.boxShadow = 'none';
+        }
+        
+        // Apply size
+        digit.style.width = clockSize === 'small' ? '60px' : clockSize === 'large' ? '100px' : '80px';
+        digit.style.height = clockSize === 'small' ? '90px' : clockSize === 'large' ? '150px' : '120px';
+        
+        // Adjust font size based on size
+        const fontSize = clockSize === 'small' ? '2.5rem' : clockSize === 'large' ? '4.5rem' : '3.5rem';
+        front.style.fontSize = fontSize;
+        back.style.fontSize = fontSize;
+        
+        // Apply seconds visibility
+        const isSecondDigit = digit.dataset.position === 'seconds' || 
+                            Number(digit.dataset.index) >= 6; // Seconds are at positions 6-7
+        
+        if (isSecondDigit) {
+          digit.style.display = showSeconds ? '' : 'none';
+          // Also hide the seconds colon
+          const prevElement = digit.previousElementSibling;
+          if (prevElement && prevElement.classList.contains('colon') && prevElement.dataset.position === 'seconds-colon') {
+            prevElement.style.display = showSeconds ? '' : 'none';
+          }
+        }
+      });
+      
+      // Also update colons based on size
+      const colons = container.querySelectorAll('.colon');
+      colons.forEach(colon => {
+        colon.style.height = clockSize === 'small' ? '90px' : clockSize === 'large' ? '150px' : '120px';
+        colon.style.fontSize = clockSize === 'small' ? '2rem' : clockSize === 'large' ? '4rem' : '3rem';
+      });
+      
+      // Update progress bar visibility
+      const progressContainer = container.querySelector('.work-progress-container');
+      if (progressContainer) {
+        progressContainer.style.display = showProgressBar ? 'block' : 'none';
+      }
+    });
+  });
+}
+
+// Update function to apply new clock style when it changes
+function updateClockStyle(newStyle) {
+  // If changing to/from default style, we need to recreate the clock display
+  chrome.storage.sync.get(['clockStyle'], function(result) {
+    const oldStyle = result.clockStyle || 'gradient';
+    const requiresReload = 
+      (oldStyle === 'default' && newStyle !== 'default') || 
+      (oldStyle !== 'default' && newStyle === 'default');
+    
+    if (requiresReload) {
+      // We need to reload the clock display - find all clock elements
+      const clockContainers = document.querySelectorAll('.flip-clock-container');
+      clockContainers.forEach(container => {
+        const clockDigitsContainer = container.querySelector('.flip-clock-digits-container');
+        if (clockDigitsContainer) {
+          // Get original clock element
+          const clockElement = document.querySelector('#clock, #display-time, .display-2 > div:not(.flip-clock-container)');
+          if (clockElement) {
+            const timeString = clockElement.textContent.trim();
+            // Recreate clock digits with new style
+            clockDigitsContainer.innerHTML = '';
+            setupFlipClockDigits(clockDigitsContainer, timeString);
+          }
+        }
+      });
+    } else {
+      // Just update the style
+      applyClockSettings();
+    }
+  });
+}
+
+// Function to update the work progress bar
+function updateWorkProgressBar(container) {
+  const progressContainer = container.querySelector('.work-progress-container');
+  if (!progressContainer) return;
+  
+  const progressTrack = progressContainer.querySelector('.work-progress-track');
+  const progressFill = progressContainer.querySelector('.work-progress-fill');
+  const percentageIndicator = progressContainer.querySelector('.work-progress-percentage');
+  
+  // Define work hours
+  const workStartHour = 10; // 10:00
+  const workEndHour = 19;   // 19:00
+  const workTotalMinutes = (workEndHour - workStartHour) * 60; // 9 hours = 540 minutes
+  
+  // Get current time
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  const currentTimeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+  
+  // Add current time indicator
+  let timeIndicator = progressContainer.querySelector('.current-time-indicator');
+  if (!timeIndicator) {
+    timeIndicator = document.createElement('div');
+    timeIndicator.className = 'current-time-indicator';
+    timeIndicator.style.position = 'absolute';
+    timeIndicator.style.top = '2px';
+    timeIndicator.style.width = '3px';
+    timeIndicator.style.height = '12px';
+    timeIndicator.style.backgroundColor = '#FF5722';
+    timeIndicator.style.zIndex = '2';
+    timeIndicator.style.boxShadow = '0 0 4px rgba(255, 87, 34, 0.6)';
+    timeIndicator.style.borderRadius = '1.5px';
+    timeIndicator.style.transform = 'translateX(-50%)';
+    
+    const timeLabel = document.createElement('div');
+    timeLabel.className = 'current-time-label';
+    timeLabel.style.position = 'absolute';
+    timeLabel.style.top = '-15px';
+    timeLabel.style.fontSize = '10px';
+    timeLabel.style.fontWeight = 'bold';
+    timeLabel.style.color = '#FF5722';
+    timeLabel.style.transform = 'translateX(-50%)';
+    timeLabel.style.whiteSpace = 'nowrap';
+    timeLabel.style.textShadow = '0 0 2px rgba(255, 255, 255, 0.8)';
+    
+    timeIndicator.appendChild(timeLabel);
+    progressTrack.appendChild(timeIndicator);
+  }
+  
+  // Calculate percentage for time indicator position relative to 24h day
+  const currentMinuteOfDay = currentHour * 60 + currentMinute;
+  const workdayStart = workStartHour * 60;
+  const workdayEnd = workEndHour * 60;
+  
+  // Calculate where to put the time indicator on the track
+  let dailyPercentage;
+  if (currentMinuteOfDay < workdayStart) {
+    dailyPercentage = 0; // Before workday starts, pin to beginning
+  } else if (currentMinuteOfDay > workdayEnd) {
+    dailyPercentage = 100; // After workday ends, pin to end
+  } else {
+    // During workday, calculate the accurate position
+    dailyPercentage = ((currentMinuteOfDay - workdayStart) / workTotalMinutes) * 100;
+  }
+  
+  timeIndicator.style.left = `${dailyPercentage}%`;
+  
+  const timeLabel = timeIndicator.querySelector('.current-time-label');
+  timeLabel.textContent = currentTimeStr;
+  
+  // Update indicator visibility based on whether we're within ±3 hours of the workday
+  const isNearWorkday = currentMinuteOfDay >= (workdayStart - 180) && 
+                         currentMinuteOfDay <= (workdayEnd + 180);
+  timeIndicator.style.opacity = isNearWorkday ? '1' : '0.5';
+  
+  // Calculate progress
+  let progress = 0;
+  let progressText = '';
+  
+  if (currentHour < workStartHour) {
+    // Before work hours
+    const minutesUntilStart = workdayStart - currentMinuteOfDay;
+    const hoursUntil = Math.floor(minutesUntilStart / 60);
+    const minsUntil = minutesUntilStart % 60;
+    
+    progress = 0;
+    progressText = `出勤時間まで ${hoursUntil}時間${minsUntil}分`;
+    
+    // Update visual cues
+    progressFill.style.backgroundColor = 'rgba(120, 130, 140, 0.4)';
+    progressFill.style.boxShadow = 'none';
+    
+  } else if (currentHour >= workEndHour) {
+    // After work hours
+    const minutesAfterEnd = currentMinuteOfDay - workdayEnd;
+    const hoursAfter = Math.floor(minutesAfterEnd / 60);
+    const minsAfter = minutesAfterEnd % 60;
+    
+    progress = 100;
+    progressText = `${currentTimeStr} • 定時は (${hoursAfter}時間 ${minsAfter}分 前)`;
+    
+    // Update visual cues for completed workday
+    progressFill.style.backgroundColor = '#28A745'; // Green when complete
+    progressFill.style.boxShadow = '0 0 8px rgba(40, 167, 69, 0.3)';
+    
+  } else {
+    // During work hours
+    const minutesSinceStart = currentMinuteOfDay - workdayStart;
+    progress = Math.min(100, (minutesSinceStart / workTotalMinutes) * 100);
+    
+    // Calculate time remaining
+    const minutesRemaining = workTotalMinutes - minutesSinceStart;
+    const hoursRemaining = Math.floor(minutesRemaining / 60);
+    const minsRemaining = minutesRemaining % 60;
+    
+    // Calculate percentage with more precision
+    const percentage = progress.toFixed(1);
+    
+    progressText = `${currentTimeStr} • ${percentage}% 経過 • 残り： ${hoursRemaining}時間 ${minsRemaining}分 `;
+    
+    // Update color based on progress
+    if (progress >= 90) {
+      progressFill.style.backgroundColor = '#28A745'; // Green when almost complete
+      progressFill.style.boxShadow = '0 0 8px rgba(40, 167, 69, 0.3)';
+    } else if (progress >= 75) {
+      progressFill.style.backgroundColor = '#17a2b8'; // Teal for good progress
+      progressFill.style.boxShadow = '0 0 8px rgba(23, 162, 184, 0.3)';
+    } else if (progress >= 50) {
+      progressFill.style.backgroundColor = '#FFC107'; // Yellow for halfway
+      progressFill.style.boxShadow = '0 0 8px rgba(255, 193, 7, 0.3)';
+    } else if (progress >= 25) {
+      progressFill.style.backgroundColor = '#fd7e14'; // Orange for getting started
+      progressFill.style.boxShadow = '0 0 8px rgba(253, 126, 20, 0.3)';
+    } else {
+      progressFill.style.backgroundColor = 'var(--color-primary)'; // Default blue
+      progressFill.style.boxShadow = '0 0 8px rgba(0, 102, 221, 0.3)';
+    }
+  }
+  
+  // Animate the progress bar smoothly
+  progressFill.style.width = `${progress}%`;
+  
+  // Update the text indicator
+  percentageIndicator.textContent = progressText;
+  
+  // Visual pulse effect for time indicator
+  if (!timeIndicator.dataset.animating) {
+    timeIndicator.dataset.animating = 'true';
+    
+    // Add subtle pulse animation
+    const pulseAnimation = () => {
+      timeIndicator.animate(
+        [
+          { boxShadow: '0 0 4px rgba(255, 87, 34, 0.6)' },
+          { boxShadow: '0 0 8px rgba(255, 87, 34, 0.8)' },
+          { boxShadow: '0 0 4px rgba(255, 87, 34, 0.6)' }
+        ],
+        {
+          duration: 2000,
+          iterations: Infinity
+        }
+      );
+    };
+    
+    pulseAnimation();
+  }
 }
