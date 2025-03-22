@@ -1,6 +1,101 @@
 // Store the original styles so we can revert if needed
 let originalStyles = {};
 
+// Function to make tabs-container horizontally draggable
+function makeTabsContainerDraggable(tabsContainer) {
+  if (!tabsContainer || tabsContainer.dataset.draggable === 'true') return;
+  
+  // Mark as draggable
+  tabsContainer.dataset.draggable = 'true';
+  
+  // Add cursor style to indicate it's draggable
+  tabsContainer.style.cursor = 'grab';
+  
+  // Variables to track drag state
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+  
+  // Mouse events
+  tabsContainer.addEventListener('mousedown', (e) => {
+    isDown = true;
+    tabsContainer.style.cursor = 'grabbing';
+    startX = e.pageX - tabsContainer.offsetLeft;
+    scrollLeft = tabsContainer.scrollLeft;
+    e.preventDefault();
+  });
+  
+  tabsContainer.addEventListener('mouseleave', () => {
+    isDown = false;
+    tabsContainer.style.cursor = 'grab';
+  });
+  
+  tabsContainer.addEventListener('mouseup', () => {
+    isDown = false;
+    tabsContainer.style.cursor = 'grab';
+  });
+  
+  tabsContainer.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    const x = e.pageX - tabsContainer.offsetLeft;
+    const walk = (x - startX) * 2; // Scroll speed multiplier
+    tabsContainer.scrollLeft = scrollLeft - walk;
+  });
+  
+  // Touch events for mobile
+  tabsContainer.addEventListener('touchstart', (e) => {
+    isDown = true;
+    startX = e.touches[0].pageX - tabsContainer.offsetLeft;
+    scrollLeft = tabsContainer.scrollLeft;
+  }, { passive: true });
+  
+  tabsContainer.addEventListener('touchend', () => {
+    isDown = false;
+  });
+  
+  tabsContainer.addEventListener('touchmove', (e) => {
+    if (!isDown) return;
+    const x = e.touches[0].pageX - tabsContainer.offsetLeft;
+    const walk = (x - startX) * 2;
+    tabsContainer.scrollLeft = scrollLeft - walk;
+  }, { passive: true });
+}
+
+// Add an observer to make any future tabs-container elements draggable
+function setupTabsContainerDragObserver() {
+  // Create a mutation observer
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            // Check if this is a tabs-container or has tabs-containers within it
+            const tabsContainers = node.classList && node.classList.contains('tabs-container') ? 
+              [node] : node.querySelectorAll('.tabs-container');
+            
+            if (tabsContainers.length > 0) {
+              tabsContainers.forEach(container => {
+                makeTabsContainerDraggable(container);
+              });
+            }
+          }
+        });
+      }
+    });
+  });
+  
+  // Start observing the document body for changes
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+  
+  // Also make any existing tabs-containers draggable
+  document.querySelectorAll('.tabs-container').forEach(container => {
+    makeTabsContainerDraggable(container);
+  });
+}
+
 // Apply our UI enhancements
 function applyEnhancements() {
   // Add body class for easier styling
@@ -106,6 +201,9 @@ function applyEnhancements() {
   
   // Fix settings icon
   fixSettingsIcon();
+  
+  // Setup horizontal drag for tabs containers
+  setupTabsContainerDragObserver();
 }
 
 // Fix duplicate sidemenus issue
@@ -194,34 +292,21 @@ function enhanceSidemenuBehavior() {
             closeSidemenu();
           }
         }, 300);
+      } else {
+        // Fallback if closeSidemenu doesn't exist
+        setTimeout(() => {
+          // Only close if mouse is still outside
+          if (sidemenu.dataset.mouseInside !== 'true') {
+            const closeTrigger = document.querySelector('[onclick*="closeSidemenu"]');
+            if (closeTrigger) {
+              closeTrigger.click();
+            }
+          }
+        }, 300);
       }
     });
     
-    // Alternative method if closeSidemenu is not directly accessible
-    document.addEventListener('mousemove', function(e) {
-      // If sidemenu is visible
-      if (sidemenu.style.display !== 'none' && sidemenu.dataset.mouseInside !== 'true') {
-        // Get sidemenu bounds
-        const rect = sidemenu.getBoundingClientRect();
-        
-        // Check if mouse is far from sidemenu (at least 50px away)
-        const isFarFromMenu = 
-          e.clientX < rect.left - 50 || 
-          e.clientX > rect.right + 50 || 
-          e.clientY < rect.top - 50 || 
-          e.clientY > rect.bottom + 50;
-        
-        if (isFarFromMenu && typeof closeSidemenu === 'function') {
-          closeSidemenu();
-        } else if (isFarFromMenu) {
-          // Fallback if closeSidemenu doesn't exist
-          const closeTrigger = document.querySelector('[onclick*="closeSidemenu"]');
-          if (closeTrigger) {
-            closeTrigger.click();
-          }
-        }
-      }
-    });
+    // Remove the mousemove event listener approach entirely
   }
 }
 
@@ -1811,6 +1896,9 @@ function enhanceSelectElement(selectElement) {
     
     sidepanel.appendChild(tabsContainer);
     
+    // Make tabs container draggable
+    makeTabsContainerDraggable(tabsContainer);
+    
     // Create options container
     const optionsContainer = document.createElement('div');
     optionsContainer.className = 'options-container';
@@ -2265,6 +2353,38 @@ function setupScreenshotButton() {
   
   // Append to body
   document.body.appendChild(buttonContainer);
+  
+  // Setup observer to hide button when man-hour-manage-modal is shown
+  const modalObserver = new MutationObserver((mutations) => {
+    const modal = document.getElementById('man-hour-manage-modal');
+    if (modal) {
+      if (modal.classList.contains('show')) {
+        // Hide ONLY the screenshot button when modal is shown
+        // The preview should remain visible if it exists
+        buttonContainer.style.display = 'none';
+      } else {
+        // Show the screenshot button when modal is closed
+        buttonContainer.style.display = 'flex';
+      }
+    }
+  });
+  
+  // Start observing for the modal
+  const checkForModal = setInterval(() => {
+    const modal = document.getElementById('man-hour-manage-modal');
+    if (modal) {
+      clearInterval(checkForModal);
+      modalObserver.observe(modal, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+      
+      // Initial check for modal state
+      if (modal.classList.contains('show')) {
+        buttonContainer.style.display = 'none';
+      }
+    }
+  }, 500);
 }
 
 // Initialize screenshot capture
@@ -2388,6 +2508,28 @@ function captureScreenshot(area) {
   const currentScrollX = window.pageXOffset || document.documentElement.scrollLeft;
   const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
 
+  // Fix flip clock transformations to prevent horizontally flipped digits
+  const flipCards = document.querySelectorAll('.flip-card');
+  flipCards.forEach(flipCard => {
+    // Reset any transforms to prevent flipped appearance
+    flipCard.style.transform = 'rotateX(0deg)';
+    flipCard.classList.remove('flipping');
+    
+    // Ensure the front face is visible
+    const front = flipCard.querySelector('.flip-card-front');
+    if (front) {
+      front.style.visibility = 'visible';
+      front.style.opacity = '1';
+    }
+    
+    // Hide the back face to prevent it from showing through
+    const back = flipCard.querySelector('.flip-card-back');
+    if (back) {
+      back.style.visibility = 'hidden';
+      back.style.opacity = '0';
+    }
+  });
+
   // Use html2canvas to capture the screen
   html2canvas(document.body, {
     useCORS: true,
@@ -2398,7 +2540,20 @@ function captureScreenshot(area) {
     scrollX: -window.scrollX,
     scrollY: -window.scrollY,
     windowWidth: document.documentElement.offsetWidth,
-    windowHeight: document.documentElement.offsetHeight
+    windowHeight: document.documentElement.offsetHeight,
+    onclone: function(clonedDoc) {
+      // Fix flip cards in the cloned document too
+      const clonedFlipCards = clonedDoc.querySelectorAll('.flip-card');
+      clonedFlipCards.forEach(card => {
+        card.style.transform = 'rotateX(0deg)';
+        
+        const cardBack = card.querySelector('.flip-card-back');
+        if (cardBack) {
+          cardBack.style.visibility = 'hidden';
+          cardBack.style.opacity = '0';
+        }
+      });
+    }
   }).then(canvas => {
     // Crop to the selected area
     const croppedCanvas = document.createElement('canvas');
@@ -2454,7 +2609,7 @@ function captureScreenshot(area) {
     // Convert to data URL
     const imageData = croppedCanvas.toDataURL('image/png');
     
-    // Copy to clipboard immediately
+    // Copy to clipboard
     croppedCanvas.toBlob(function(blob) {
       try {
         const item = new ClipboardItem({ 'image/png': blob });
@@ -2472,9 +2627,13 @@ function captureScreenshot(area) {
         showNotification('Copy to clipboard not supported in this browser.');
       }
     });
-
+    
     // Show preview with download option
     showScreenshotPreview(imageData);
+  })
+  .catch(error => {
+    console.error('Screenshot capture failed:', error);
+    showNotification('キャプチャに失敗しました');
   });
 }
 
@@ -2581,19 +2740,22 @@ function showScreenshotPreview(imageData) {
   // Add preview to body
   document.body.appendChild(previewContainer);
   
-  // Position preview above the capture button
+  // Position preview in the bottom right corner
+  // Get the capture button for positioning, but handle case when it's hidden
   const captureBtn = document.getElementById('screenshot-capture-btn');
-  if (captureBtn) {
+  let rightPosition = 20; // Default right position
+  let bottomPosition = 20; // Default bottom position (above where the capture button would be)
+  
+  if (captureBtn && captureBtn.style.display !== 'none') {
+    // If button is visible, position relative to it
     const captureBtnRect = captureBtn.getBoundingClientRect();
-    
-    // Calculate the right position to align with the capture button
-    const right = window.innerWidth - captureBtnRect.right;
-    previewContainer.style.right = `${right}px`;
-    
-    // Calculate the bottom position to be above the capture button
-    const bottom = window.innerHeight - captureBtnRect.top + 10;
-    previewContainer.style.bottom = `${bottom}px`;
+    rightPosition = window.innerWidth - captureBtnRect.right;
+    bottomPosition = window.innerHeight - captureBtnRect.top + 10;
   }
+  
+  // Apply positioning
+  previewContainer.style.right = `${rightPosition}px`;
+  previewContainer.style.bottom = `${bottomPosition}px`;
   
   // Animate opening
   setTimeout(() => {
@@ -2901,6 +3063,28 @@ function captureElementScreenshot(element) {
   // Enhance the content
   cleanupAndEnhanceContent(finalElement);
   
+  // Fix flip clock transformations to prevent horizontally flipped digits
+  const flipCards = finalElement.querySelectorAll('.flip-card');
+  flipCards.forEach(flipCard => {
+    // Reset any transforms to prevent flipped appearance
+    flipCard.style.transform = 'rotateX(0deg)';
+    flipCard.classList.remove('flipping');
+    
+    // Ensure the front face is visible
+    const front = flipCard.querySelector('.flip-card-front');
+    if (front) {
+      front.style.visibility = 'visible';
+      front.style.opacity = '1';
+    }
+    
+    // Hide the back face to prevent it from showing through
+    const back = flipCard.querySelector('.flip-card-back');
+    if (back) {
+      back.style.visibility = 'hidden';
+      back.style.opacity = '0';
+    }
+  });
+  
   // Create a loading indicator
   const loadingIndicator = document.createElement('div');
   loadingIndicator.style.position = 'fixed';
@@ -2931,6 +3115,18 @@ function captureElementScreenshot(element) {
         // Ensure the cloned element fits snugly
         clonedElement.style.height = 'auto';
         clonedElement.style.overflow = 'visible';
+        
+        // Fix flip cards in the cloned document too
+        const clonedFlipCards = clonedElement.querySelectorAll('.flip-card');
+        clonedFlipCards.forEach(card => {
+          card.style.transform = 'rotateX(0deg)';
+          
+          const cardBack = card.querySelector('.flip-card-back');
+          if (cardBack) {
+            cardBack.style.visibility = 'hidden';
+            cardBack.style.opacity = '0';
+          }
+        });
       }
     }
   }).then(canvas => {
@@ -4040,3 +4236,245 @@ function updateWorkProgressBar(container) {
     pulseAnimation();
   }
 }
+
+// ... existing code ...
+function makeTabsContainerDraggable(tabsContainer) {
+  if (!tabsContainer || tabsContainer.dataset.draggable === 'true') return;
+  
+  // Mark as draggable
+  tabsContainer.dataset.draggable = 'true';
+  
+  // Add cursor style to indicate it's draggable
+  tabsContainer.style.cursor = 'grab';
+  
+  // Variables to track drag state
+  let isDown = false;
+  let startX;
+  let scrollLeft;
+  
+  // Mouse events
+  tabsContainer.addEventListener('mousedown', (e) => {
+    isDown = true;
+    tabsContainer.style.cursor = 'grabbing';
+    startX = e.pageX - tabsContainer.offsetLeft;
+    scrollLeft = tabsContainer.scrollLeft;
+    e.preventDefault();
+  });
+  
+  tabsContainer.addEventListener('mouseleave', () => {
+    isDown = false;
+    tabsContainer.style.cursor = 'grab';
+  });
+  
+  tabsContainer.addEventListener('mouseup', () => {
+    isDown = false;
+    tabsContainer.style.cursor = 'grab';
+  });
+  
+  tabsContainer.addEventListener('mousemove', (e) => {
+    if (!isDown) return;
+    const x = e.pageX - tabsContainer.offsetLeft;
+    const walk = (x - startX) * 2; // Scroll speed multiplier
+    tabsContainer.scrollLeft = scrollLeft - walk;
+  });
+  
+  // Touch events for mobile
+  tabsContainer.addEventListener('touchstart', (e) => {
+    isDown = true;
+    startX = e.touches[0].pageX - tabsContainer.offsetLeft;
+    scrollLeft = tabsContainer.scrollLeft;
+  }, { passive: true });
+  
+  tabsContainer.addEventListener('touchend', () => {
+    isDown = false;
+  });
+  
+  tabsContainer.addEventListener('touchmove', (e) => {
+    if (!isDown) return;
+    const x = e.touches[0].pageX - tabsContainer.offsetLeft;
+    const walk = (x - startX) * 2;
+    tabsContainer.scrollLeft = scrollLeft - walk;
+  }, { passive: true });
+}
+
+// ... existing code ...
+
+// Modify the createSidepanel function to make tabs container draggable
+function createSidepanel() {
+  // Remove any existing sidepanels
+  const existingSidepanel = document.querySelector('.select-sidepanel');
+  if (existingSidepanel) {
+    existingSidepanel.remove();
+  }
+  
+  // Create a new sidepanel
+  const sidepanel = document.createElement('div');
+  sidepanel.className = 'select-sidepanel';
+  if (isProject) {
+    sidepanel.classList.add('project-panel');
+  } else if (isTask) {
+    sidepanel.classList.add('task-panel');
+  }
+  
+  // Create header for the sidepanel
+  const panelHeader = document.createElement('div');
+  panelHeader.className = 'sidepanel-header';
+  
+  const panelTitle = document.createElement('h3');
+  panelTitle.textContent = isProject ? 'プロジェクト選択' : 'タスク選択';
+  
+  panelHeader.appendChild(panelTitle);
+  sidepanel.appendChild(panelHeader);
+  
+  // Add tabs container
+  const tabsContainer = document.createElement('div');
+  tabsContainer.className = 'tabs-container';
+  
+  // Generate tab categories from option text
+  const categories = generateCategories(selectElement);
+  
+  // Create "All" tab first
+  const allTab = document.createElement('div');
+  allTab.className = 'tab active';
+  allTab.dataset.category = 'all';
+  allTab.textContent = 'すべて';
+  tabsContainer.appendChild(allTab);
+  
+  // Create tabs for each category
+  categories.forEach(category => {
+    const tab = document.createElement('div');
+    tab.className = 'tab';
+    tab.dataset.category = category.id;
+    tab.textContent = category.name;
+    tabsContainer.appendChild(tab);
+  });
+  
+  sidepanel.appendChild(tabsContainer);
+  
+  // Make tabs container draggable
+  makeTabsContainerDraggable(tabsContainer);
+  
+  // Create options container
+  const optionsContainer = document.createElement('div');
+  optionsContainer.className = 'options-container';
+  
+  // Create options list
+  const optionsList = document.createElement('ul');
+  optionsList.className = 'options-list';
+  
+  // Add "no options" message if needed
+  if (selectElement.options.length <= 1 || (selectElement.options.length === 1 && selectElement.options[0].value === '')) {
+    const noOptions = document.createElement('li');
+    noOptions.className = 'no-options';
+    noOptions.textContent = isProject ? 'プロジェクトがありません' : 'タスクがありません';
+    optionsList.appendChild(noOptions);
+      } else {
+    // Add all options to the list and assign categories
+    for (let i = 0; i < selectElement.options.length; i++) {
+      const option = selectElement.options[i];
+      
+      // Skip empty options or those with no value
+      if (!option.value && i > 0) continue;
+      
+      const optionItem = document.createElement('li');
+      optionItem.className = 'option-item';
+      optionItem.dataset.value = option.value;
+      optionItem.textContent = option.text;
+      
+      // Assign categories to this option
+      const optionCategories = assignOptionToCategories(option.text, categories);
+      optionItem.dataset.categories = optionCategories.join(',');
+      
+      if (option.selected) {
+        optionItem.classList.add('selected');
+      }
+      
+      // Handle option selection
+      optionItem.addEventListener('click', () => {
+        // Update the actual select element
+        selectElement.value = option.value;
+        
+        // Trigger change event on the original select
+        const event = new Event('change', { bubbles: true });
+        selectElement.dispatchEvent(event);
+        
+        // Update the display
+        selectDisplay.textContent = option.text;
+        selectDisplay.classList.remove('placeholder');
+        
+        // Update the selected item in the list
+        const allOptions = optionsList.querySelectorAll('.option-item');
+        allOptions.forEach(opt => opt.classList.remove('selected'));
+        optionItem.classList.add('selected');
+        
+        // Don't close the panel, let the user make multiple selections
+      });
+      
+      optionsList.appendChild(optionItem);
+    }
+  }
+  
+  optionsContainer.appendChild(optionsList);
+  sidepanel.appendChild(optionsContainer);
+  
+  // Add tab click event listeners
+  const tabs = tabsContainer.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Remove active class from all tabs
+      tabs.forEach(t => t.classList.remove('active'));
+      // Add active class to clicked tab
+      tab.classList.add('active');
+      
+      // Filter options based on selected tab
+      const selectedCategory = tab.dataset.category;
+      const options = optionsList.querySelectorAll('.option-item');
+      
+      options.forEach(option => {
+        if (selectedCategory === 'all') {
+          option.style.display = '';
+        } else {
+          const optionCategories = option.dataset.categories ? option.dataset.categories.split(',') : [];
+          if (optionCategories.includes(selectedCategory)) {
+            option.style.display = '';
+          } else {
+            option.style.display = 'none';
+          }
+        }
+      });
+    });
+  });
+  
+  // Add close button
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'sidepanel-close';
+  closeBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  closeBtn.addEventListener('click', () => {
+    sidepanel.classList.remove('open');
+    setTimeout(() => {
+      sidepanel.remove();
+    }, 300); // Wait for the transition to complete
+  });
+  panelHeader.appendChild(closeBtn);
+  
+  // Add to document body
+  document.body.appendChild(sidepanel);
+  
+  // Position next to the modal
+  const modal = document.getElementById('man-hour-manage-modal');
+  if (modal) {
+    // Calculate position (to the left of the modal)
+    const modalRect = modal.getBoundingClientRect();
+    sidepanel.style.top = `${modalRect.top}px`;
+    sidepanel.style.left = `${modalRect.left - 400}px`; // 400px is the width of the sidepanel
+  }
+  
+  // Show the sidepanel with animation
+  setTimeout(() => {
+    sidepanel.classList.add('open');
+  }, 50);
+  
+  return sidepanel;
+}
+
+// ... existing code ...
