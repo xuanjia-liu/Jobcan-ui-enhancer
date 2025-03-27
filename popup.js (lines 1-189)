@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const clockStyleRadios = document.querySelectorAll('input[name="clockStyle"]');
   const clockSizeRadios = document.querySelectorAll('input[name="clockSize"]');
   
-  // Load saved settings
+  // Load saved settings (including enableEnhancer)
   chrome.storage.sync.get(
     ['darkMode', 'clockStyle', 'clockSize', 'showSeconds', 'showProgressBar'], 
     function(result) {
@@ -146,4 +146,4 @@ document.addEventListener('DOMContentLoaded', function() {
       toast.className = toast.className.replace("show", "");
     }, 3000);
   }
-});
+}); 

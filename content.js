@@ -1,6 +1,68 @@
 // Store the original styles so we can revert if needed
 let originalStyles = {};
 
+// Constants for colors and styles
+const COLORS = {
+  primary: {
+    gradient: 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)',
+    solid: 'var(--color-primary)',
+    shadow: '0 0 8px rgba(0, 102, 221, 0.3)'
+  },
+  working: {
+    gradient: 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)',
+    colon: '#06F'
+  },
+  notWorking: {
+    gradient: 'linear-gradient(135deg, #6c757d 0%, #495057 100%)',
+    colon: '#6c757d'
+  },
+  progress: {
+    complete: {
+      color: '#28A745',
+      shadow: '0 0 8px rgba(40, 167, 69, 0.3)'
+    },
+    good: {
+      color: '#17a2b8',
+      shadow: '0 0 8px rgba(23, 162, 184, 0.3)'
+    },
+    halfway: {
+      color: '#FFC107',
+      shadow: '0 0 8px rgba(255, 193, 7, 0.3)'
+    },
+    starting: {
+      color: '#fd7e14',
+      shadow: '0 0 8px rgba(253, 126, 20, 0.3)'
+    },
+    inactive: {
+      color: 'rgba(120, 130, 140, 0.4)',
+      shadow: 'none'
+    }
+  },
+  timeIndicator: {
+    color: '#FF5722',
+    shadow: {
+      normal: '0 0 4px rgba(255, 87, 34, 0.6)',
+      pulse: '0 0 8px rgba(255, 87, 34, 0.8)'
+    }
+  }
+};
+
+// Work hours configuration
+const WORK_HOURS = {
+  start: 10,  // 10:00
+  end: 19,    // 19:00
+  get totalMinutes() {
+    return (this.end - this.start) * 60;
+  }
+};
+
+// Animation durations
+const ANIMATION = {
+  flip: 500,
+  pulse: 2000,
+  transition: 200
+};
+
 // Function to make tabs-container horizontally draggable
 function makeTabsContainerDraggable(tabsContainer) {
   if (!tabsContainer || tabsContainer.dataset.draggable === 'true') return;
@@ -105,6 +167,7 @@ function applyEnhancements() {
   fixDuplicateSidemenus();
   enhanceSidemenuBehavior();
   setupHeaderVisibility();
+  removeLogoBorder(); // Add new function call here
   enhanceManagerNameDisplay();
   enhanceUserDisplay(); // Add new enhancement
   setupFlipClock();
@@ -117,87 +180,81 @@ function applyEnhancements() {
   addFormScreenshotButton();
   monitorUnmatchTime();
   foldSignInRightContainer(); // Add the new function call here
+  setupManHourKeyboardShortcuts(); // Add keyboard shortcuts
   
-  // Check if enhancements are enabled
-  chrome.storage.sync.get(['enableEnhancer'], function(result) {
-    const enabled = result.enableEnhancer !== false; // Default to true if undefined
+  // UI enhancements are always enabled
+  document.body.classList.add('jobcan-enhanced');
+  fixDuplicateSidemenus();
+  enhanceSidemenuBehavior();
+  setupHeaderVisibility();
+  removeLogoBorder(); // Add new function call here
+  enhanceManagerNameDisplay();
+  setupFlipClock();
+  convertManHourModalToSidePanel();
+  enhanceModalTitle();
+  enhanceManHourSelectLists();
+  simplifyTableHeaders();
+  enhanceCollapseInfo();
+  setupScreenshotButton();
+  addFormScreenshotButton();
+  monitorUnmatchTime();
+  foldSignInRightContainer(); // Add the new function call here
+  
+  // Add background image to login page
+  const loginContainer = document.querySelector('.login-page-container');
+  if (loginContainer) {
+    // Remove any existing SVG background
+    loginContainer.style.background = 'none';
     
-    if (enabled) {
-      document.body.classList.add('jobcan-enhanced');
-      fixDuplicateSidemenus();
-      enhanceSidemenuBehavior();
-      setupHeaderVisibility();
-      enhanceManagerNameDisplay();
-      setupFlipClock();
-      convertManHourModalToSidePanel();
-      enhanceModalTitle();
-      enhanceManHourSelectLists();
-      simplifyTableHeaders();
-      enhanceCollapseInfo();
-      setupScreenshotButton();
-      addFormScreenshotButton();
-      monitorUnmatchTime();
-      foldSignInRightContainer(); // Add the new function call here
+    // Initialize wave animation on the login page
+    // The script checks if it exists already to avoid duplicates
+    if (!document.querySelector('#wave-animation-script')) {
+      // First, create a script element to load wave.js
+      const scriptElement = document.createElement('script');
+      scriptElement.id = 'wave-animation-script';
+      scriptElement.src = chrome.runtime.getURL('wave.js');
       
-      // Add background image to login page
-      const loginContainer = document.querySelector('.login-page-container');
-      if (loginContainer) {
-        // Remove any existing SVG background
-        loginContainer.style.background = 'none';
-        
-        // Initialize wave animation on the login page
-        // The script checks if it exists already to avoid duplicates
-        if (!document.querySelector('#wave-animation-script')) {
-          // First, create a script element to load wave.js
-          const scriptElement = document.createElement('script');
-          scriptElement.id = 'wave-animation-script';
-          scriptElement.src = chrome.runtime.getURL('wave.js');
-          
-          // Add script to the page
-          document.head.appendChild(scriptElement);
-          
-          // Make sure all input fields pass through mouse events to the canvas
-          loginContainer.addEventListener('click', function(e) {
-            // Create a custom event to propagate clicks to the canvas
-            const canvasElement = document.querySelector('canvas');
-            if (canvasElement) {
-              const rect = canvasElement.getBoundingClientRect();
-              const clickEvent = new MouseEvent('click', {
-                clientX: e.clientX - rect.left,
-                clientY: e.clientY - rect.top,
-                bubbles: true,
-                cancelable: true
-              });
-              canvasElement.dispatchEvent(clickEvent);
-            }
+      // Add script to the page
+      document.head.appendChild(scriptElement);
+      
+      // Make sure all input fields pass through mouse events to the canvas
+      loginContainer.addEventListener('click', function(e) {
+        // Create a custom event to propagate clicks to the canvas
+        const canvasElement = document.querySelector('canvas');
+        if (canvasElement) {
+          const rect = canvasElement.getBoundingClientRect();
+          const clickEvent = new MouseEvent('click', {
+            clientX: e.clientX - rect.left,
+            clientY: e.clientY - rect.top,
+            bubbles: true,
+            cancelable: true
           });
+          canvasElement.dispatchEvent(clickEvent);
         }
-        
-        // Remove all styling from the form container
-        const signInForm = loginContainer.querySelector('.sign-in-left-container');
-        if (signInForm) {
-          signInForm.style.backgroundColor = 'transparent';
-          signInForm.style.borderRadius = '0';
-          signInForm.style.boxShadow = 'none';
-          signInForm.style.padding = '0';
-          signInForm.style.position = 'relative';
-          signInForm.style.zIndex = '1';
-          
-          // Make only the form inputs have a white background for readability
-          const formControls = signInForm.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
-          formControls.forEach(input => {
-            input.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
-            
-            // Make sure input fields are above the canvas
-            input.style.position = 'relative';
-            input.style.zIndex = '2';
-          });
-        }
-      }
-    } else {
-      document.body.classList.remove('jobcan-enhanced');
+      });
     }
-  });
+    
+    // Remove all styling from the form container
+    const signInForm = loginContainer.querySelector('.sign-in-left-container');
+    if (signInForm) {
+      signInForm.style.backgroundColor = 'transparent';
+      signInForm.style.borderRadius = '0';
+      signInForm.style.boxShadow = 'none';
+      signInForm.style.padding = '0';
+      signInForm.style.position = 'relative';
+      signInForm.style.zIndex = '1';
+      
+      // Make only the form inputs have a white background for readability
+      const formControls = signInForm.querySelectorAll('input[type="text"], input[type="email"], input[type="password"]');
+      formControls.forEach(input => {
+        input.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+        
+        // Make sure input fields are above the canvas
+        input.style.position = 'relative';
+        input.style.zIndex = '2';
+      });
+    }
+  }
   
   // Fix settings icon
   fixSettingsIcon();
@@ -331,11 +388,7 @@ function setupHeaderVisibility() {
   header.style.backgroundColor = 'transparent';
   header.style.boxShadow = 'none';
   
-  // Hide the logo/navbar-header
-  const navbarHeader = header.querySelector('.jbcid-navbar-header');
-  if (navbarHeader) {
-    navbarHeader.style.display = 'none';
-  }
+
   
   // Style the left navbar menu as a toggle tab in the center
   const navbarMenu = header.querySelector('.jbcid-navbar-menu.jbcid-navbar-left');
@@ -468,7 +521,7 @@ function enhanceManagerNameDisplay() {
   settingsButton.href = '/employee/edit-info/';
   settingsButton.className = 'staff-settings-btn';
   settingsButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-    <path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+    <path fill="currentColor" d="M19.14 12.94c.04 -.3 .06 -.61 .06 -.94 0 -.32 -.02 -.64 -.07 -.94l2.03 -1.58c.18 -.14 .23 -.41 .12 -.61l-1.92 -3.32c-.12 -.22 -.37 -.29 -.59 -.22l-2.39 .96c-.5 -.38 -1.03 -.7 -1.62 -.94l-.36 -2.54c-.04 -.24 -.24 -.41 -.47 -.41h-3.84c-.24 0 -.43 .17 -.47 .41l-.36 2.54c-.59 .24 -1.13 .57 -1.62 .94l-2.39 -.96c-.22 -.08 -.47 0 -.59 .22L2.74 8.87c-.12 .21 -.08 .47 .12 .61l2.03 1.58c-.05 .3 -.09 .63 -.09 .94s.02 .64 .07 .94l-2.03 1.58c-.18 .14 -.23 .41 -.12 .61l1.92 3.32c.12 .22 .37 .29 .59 .22l2.39 -.96c.5 .38 1.03 .7 1.62 .94l.36 2.54c.05 .24 .24 .41 .48 .41h3.84c.24 0 .44 -.17 .47 -.41l.36 -2.54c.59 -.24 1.13 -.56 1.62 -.94l2.39 .96c.22 .08 .47 0 .59 -.22l1.92 -3.32c.12 -.22 .07 -.47 -.12 -.61l-2.01 -1.58zM12 15.6c-1.98 0 -3.6 -1.62 -3.6 -3.6s1.62 -3.6 3.6 -3.6 3.6 1.62 3.6 3.6 -1.62 3.6 -3.6 3.6z"/>
   </svg>`;
   settingsButton.title = '設定';
   
@@ -815,16 +868,42 @@ function setupFlipClock() {
   });
 }
 
-// Update flip clock every second
+// Update flip clock every second with comprehensive functionality
 function updateFlipClock(container, clockElement) {
+  // Set up a MutationObserver to watch for status changes
+  const workingStatusObserver = new MutationObserver((mutations) => {
+    updateFlipClockColors(container);
+  });
+  
+  // Find and observe the working status element
+  const workingStatus = document.getElementById('working_status');
+  if (workingStatus) {
+    workingStatusObserver.observe(workingStatus, { 
+      childList: true, 
+      characterData: true, 
+      subtree: true 
+    });
+    
+    // Also observe parent in case element gets replaced
+    if (workingStatus.parentElement) {
+      workingStatusObserver.observe(workingStatus.parentElement, { 
+        childList: true 
+      });
+    }
+  }
+  
+  // Initial color update
+  updateFlipClockColors(container);
+  
   // Set interval for updating
   const updateInterval = setInterval(() => {
     // Check if container still exists
     if (!document.body.contains(container)) {
       clearInterval(updateInterval);
-    return;
-  }
-  
+      workingStatusObserver.disconnect();
+      return;
+    }
+    
     // Get current time from the clock element
     const currentTime = clockElement.textContent.trim();
     
@@ -866,55 +945,58 @@ function updateFlipClock(container, clockElement) {
     // Normalize time format
     const normalizedTime = normalizeTimeFormat(currentTime);
     
-    // Update each digit if needed
+    // Update each digit as needed
+    let digitIndex = 0;
     for (let i = 0; i < normalizedTime.length; i++) {
       const char = normalizedTime[i];
-      if (char === ':') continue;
       
-      // Find corresponding digit element
-      const index = i - Math.floor(i/3); // Adjust for colons
-      const digitElement = digitElements[index];
-      
-      if (!digitElement) continue;
-      
-      // Check if digit needs to be updated
-      if (digitElement.dataset.digit !== char) {
-        // Update the digit
-        digitElement.dataset.digit = char;
+      if (char !== ':') {
+        const digitElement = digitElements[digitIndex];
+        if (!digitElement) continue;
         
-        // Get the flip card
-        const flipCard = digitElement.querySelector('.flip-card');
-        if (!flipCard) continue;
+        const currentDigit = digitElement.dataset.digit;
         
-        // Update front and back sides
-        const front = flipCard.querySelector('.flip-card-front');
-        const back = flipCard.querySelector('.flip-card-back');
-        
-        if (front && back) {
-          front.textContent = char;
-          back.textContent = char;
+        // If digit has changed, animate it
+        if (currentDigit !== char) {
+          // Update digit data attribute
+          digitElement.dataset.digit = char;
           
-          // Perform flip animation
-          flipCard.style.transform = 'rotateX(180deg)';
+          // Get the flip card
+          const flipCard = digitElement.querySelector('.flip-card');
           
-          // Reset flip after animation
+          // Update the back face with the new digit
+          const flipCardBack = flipCard.querySelector('.flip-card-back');
+          flipCardBack.textContent = char;
+          
+          // Animate the flip
+          flipCard.classList.remove('flipping');
+          // Trigger reflow
+          void flipCard.offsetWidth;
+          flipCard.classList.add('flipping');
+          
+          // After animation completes, reset the card and update front face
           setTimeout(() => {
-            flipCard.style.transition = 'none';
+            flipCard.classList.remove('flipping');
+            const flipCardFront = flipCard.querySelector('.flip-card-front');
+            flipCardFront.textContent = char;
+            // Reset transform
             flipCard.style.transform = 'rotateX(0deg)';
-            setTimeout(() => {
-              flipCard.style.transition = 'transform 250ms ease';
-            }, 50);
-          }, 250);
+          }, 600);
         }
+        
+        digitIndex++;
       }
     }
     
     // Update colors based on working status
     updateFlipClockColors(container);
   }, 1000);
+  
+  // Return the interval so it can be cleared if needed
+  return updateInterval;
 }
 
-// Function to update the work progress bar
+// Function to update the work progress bar with comprehensive functionality
 function updateWorkProgressBar(container) {
   const progressContainer = container.querySelector('.work-progress-container');
   if (!progressContainer) return;
@@ -922,11 +1004,6 @@ function updateWorkProgressBar(container) {
   const progressTrack = progressContainer.querySelector('.work-progress-track');
   const progressFill = progressContainer.querySelector('.work-progress-fill');
   const percentageIndicator = progressContainer.querySelector('.work-progress-percentage');
-  
-  // Define work hours
-  const workStartHour = 10; // 10:00
-  const workEndHour = 19;   // 19:00
-  const workTotalMinutes = (workEndHour - workStartHour) * 60; // 9 hours = 540 minutes
   
   // Get current time
   const now = new Date();
@@ -943,9 +1020,9 @@ function updateWorkProgressBar(container) {
     timeIndicator.style.top = '2px';
     timeIndicator.style.width = '3px';
     timeIndicator.style.height = '12px';
-    timeIndicator.style.backgroundColor = '#FF5722';
+    timeIndicator.style.backgroundColor = COLORS.timeIndicator.color;
     timeIndicator.style.zIndex = '2';
-    timeIndicator.style.boxShadow = '0 0 4px rgba(255, 87, 34, 0.6)';
+    timeIndicator.style.boxShadow = COLORS.timeIndicator.shadow.normal;
     timeIndicator.style.borderRadius = '1.5px';
     timeIndicator.style.transform = 'translateX(-50%)';
     
@@ -955,7 +1032,7 @@ function updateWorkProgressBar(container) {
     timeLabel.style.top = '-15px';
     timeLabel.style.fontSize = '10px';
     timeLabel.style.fontWeight = 'bold';
-    timeLabel.style.color = '#FF5722';
+    timeLabel.style.color = COLORS.timeIndicator.color;
     timeLabel.style.transform = 'translateX(-50%)';
     timeLabel.style.whiteSpace = 'nowrap';
     timeLabel.style.textShadow = '0 0 2px rgba(255, 255, 255, 0.8)';
@@ -966,8 +1043,8 @@ function updateWorkProgressBar(container) {
   
   // Calculate percentage for time indicator position relative to 24h day
   const currentMinuteOfDay = currentHour * 60 + currentMinute;
-  const workdayStart = workStartHour * 60;
-  const workdayEnd = workEndHour * 60;
+  const workdayStart = WORK_HOURS.start * 60;
+  const workdayEnd = WORK_HOURS.end * 60;
   
   // Calculate where to put the time indicator on the track
   let dailyPercentage;
@@ -977,7 +1054,7 @@ function updateWorkProgressBar(container) {
     dailyPercentage = 100; // After workday ends, pin to end
   } else {
     // During workday, calculate the accurate position
-    dailyPercentage = ((currentMinuteOfDay - workdayStart) / workTotalMinutes) * 100;
+    dailyPercentage = ((currentMinuteOfDay - workdayStart) / WORK_HOURS.totalMinutes) * 100;
   }
   
   timeIndicator.style.left = `${dailyPercentage}%`;
@@ -987,70 +1064,70 @@ function updateWorkProgressBar(container) {
   
   // Update indicator visibility based on whether we're within ±3 hours of the workday
   const isNearWorkday = currentMinuteOfDay >= (workdayStart - 180) && 
-                         currentMinuteOfDay <= (workdayEnd + 180);
+                       currentMinuteOfDay <= (workdayEnd + 180);
   timeIndicator.style.opacity = isNearWorkday ? '1' : '0.5';
   
   // Calculate progress
   let progress = 0;
   let progressText = '';
   
-  if (currentHour < workStartHour) {
+  if (currentHour < WORK_HOURS.start) {
     // Before work hours
     const minutesUntilStart = workdayStart - currentMinuteOfDay;
     const hoursUntil = Math.floor(minutesUntilStart / 60);
     const minsUntil = minutesUntilStart % 60;
     
     progress = 0;
-    progressText = `出勤時間まではあと ${currentTimeStr} • ${hoursUntil}h ${minsUntil}m `;
+    progressText = `出勤時間まで ${hoursUntil}時間${minsUntil}分`;
     
     // Update visual cues
-    progressFill.style.backgroundColor = 'rgba(120, 130, 140, 0.4)';
-    progressFill.style.boxShadow = 'none';
+    progressFill.style.backgroundColor = COLORS.progress.inactive.color;
+    progressFill.style.boxShadow = COLORS.progress.inactive.shadow;
     
-  } else if (currentHour >= workEndHour) {
+  } else if (currentHour >= WORK_HOURS.end) {
     // After work hours
     const minutesAfterEnd = currentMinuteOfDay - workdayEnd;
     const hoursAfter = Math.floor(minutesAfterEnd / 60);
     const minsAfter = minutesAfterEnd % 60;
     
     progress = 100;
-    progressText = `${currentTimeStr} • 定時は (${hoursAfter}h ${minsAfter}m 前)`;
+    progressText = `${currentTimeStr} • 定時は (${hoursAfter}時間 ${minsAfter}分 前)`;
     
     // Update visual cues for completed workday
-    progressFill.style.backgroundColor = '#28A745'; // Green when complete
-    progressFill.style.boxShadow = '0 0 8px rgba(40, 167, 69, 0.3)';
+    progressFill.style.backgroundColor = COLORS.progress.complete.color;
+    progressFill.style.boxShadow = COLORS.progress.complete.shadow;
     
   } else {
     // During work hours
     const minutesSinceStart = currentMinuteOfDay - workdayStart;
-    progress = Math.min(100, (minutesSinceStart / workTotalMinutes) * 100);
+    progress = Math.min(100, (minutesSinceStart / WORK_HOURS.totalMinutes) * 100);
     
     // Calculate time remaining
-    const minutesRemaining = workTotalMinutes - minutesSinceStart;
+    const minutesRemaining = WORK_HOURS.totalMinutes - minutesSinceStart;
     const hoursRemaining = Math.floor(minutesRemaining / 60);
     const minsRemaining = minutesRemaining % 60;
     
     // Calculate percentage with more precision
     const percentage = progress.toFixed(1);
     
-    progressText = `${currentTimeStr} • ${percentage}% 経過 • 残り： ${hoursRemaining}h ${minsRemaining}m `;
+    progressText = `${currentTimeStr} • ${percentage}% 経過 • 残り： ${hoursRemaining}時間 ${minsRemaining}分 `;
     
     // Update color based on progress
     if (progress >= 90) {
-      progressFill.style.backgroundColor = '#28A745'; // Green when almost complete
-      progressFill.style.boxShadow = '0 0 8px rgba(40, 167, 69, 0.3)';
+      progressFill.style.backgroundColor = COLORS.progress.complete.color;
+      progressFill.style.boxShadow = COLORS.progress.complete.shadow;
     } else if (progress >= 75) {
-      progressFill.style.backgroundColor = '#17a2b8'; // Teal for good progress
-      progressFill.style.boxShadow = '0 0 8px rgba(23, 162, 184, 0.3)';
+      progressFill.style.backgroundColor = COLORS.progress.good.color;
+      progressFill.style.boxShadow = COLORS.progress.good.shadow;
     } else if (progress >= 50) {
-      progressFill.style.backgroundColor = '#FFC107'; // Yellow for halfway
-      progressFill.style.boxShadow = '0 0 8px rgba(255, 193, 7, 0.3)';
+      progressFill.style.backgroundColor = COLORS.progress.halfway.color;
+      progressFill.style.boxShadow = COLORS.progress.halfway.shadow;
     } else if (progress >= 25) {
-      progressFill.style.backgroundColor = '#fd7e14'; // Orange for getting started
-      progressFill.style.boxShadow = '0 0 8px rgba(253, 126, 20, 0.3)';
+      progressFill.style.backgroundColor = COLORS.progress.starting.color;
+      progressFill.style.boxShadow = COLORS.progress.starting.shadow;
     } else {
-      progressFill.style.backgroundColor = 'var(--color-primary)'; // Default blue
-      progressFill.style.boxShadow = '0 0 8px rgba(0, 102, 221, 0.3)';
+      progressFill.style.backgroundColor = COLORS.primary.solid;
+      progressFill.style.boxShadow = COLORS.primary.shadow;
     }
   }
   
@@ -1068,12 +1145,12 @@ function updateWorkProgressBar(container) {
     const pulseAnimation = () => {
       timeIndicator.animate(
         [
-          { boxShadow: '0 0 4px rgba(255, 87, 34, 0.6)' },
-          { boxShadow: '0 0 8px rgba(255, 87, 34, 0.8)' },
-          { boxShadow: '0 0 4px rgba(255, 87, 34, 0.6)' }
+          { boxShadow: COLORS.timeIndicator.shadow.normal },
+          { boxShadow: COLORS.timeIndicator.shadow.pulse },
+          { boxShadow: COLORS.timeIndicator.shadow.normal }
         ],
         {
-          duration: 2000,
+          duration: ANIMATION.pulse,
           iterations: Infinity
         }
       );
@@ -1256,106 +1333,24 @@ function createFlipDigit(digit) {
 }
 
 // Update the flip clock
-function updateFlipClock(container, clockElement) {
-  // Set up a MutationObserver to watch for status changes
-  const workingStatusObserver = new MutationObserver((mutations) => {
-    updateFlipClockColors(container);
-  });
-  
-  // Find and observe the working status element
-  const workingStatus = document.getElementById('working_status');
-  if (workingStatus) {
-    workingStatusObserver.observe(workingStatus, { 
-      childList: true, 
-      characterData: true, 
-      subtree: true 
-    });
-    
-    // Also observe parent in case element gets replaced
-    if (workingStatus.parentElement) {
-      workingStatusObserver.observe(workingStatus.parentElement, { 
-        childList: true 
-      });
-    }
-  }
-  
-  // Initial color update
-  updateFlipClockColors(container);
-  
-  setInterval(() => {
-    // Get current time from the original clock element
-    const newTime = clockElement.textContent.trim();
-    const normalizedNewTime = normalizeTimeFormat(newTime);
-    
-    // Find the digits container
-    const digitsContainer = container.querySelector('.flip-clock-digits-container');
-    if (!digitsContainer) return;
-    
-    // Get existing digits
-    const digitElements = digitsContainer.querySelectorAll('.flip-clock-digit');
-    
-    // Update each digit as needed
-    let digitIndex = 0;
-    for (let i = 0; i < normalizedNewTime.length; i++) {
-      const char = normalizedNewTime[i];
-      
-      if (char !== ':') {
-        const digitElement = digitElements[digitIndex];
-        if (!digitElement) continue;
-        
-        const currentDigit = digitElement.dataset.digit;
-        
-        // If digit has changed, animate it
-        if (currentDigit !== char) {
-          // Update digit data attribute
-          digitElement.dataset.digit = char;
-          
-          // Get the flip card
-          const flipCard = digitElement.querySelector('.flip-card');
-          
-          // Update the back face with the new digit
-          const flipCardBack = flipCard.querySelector('.flip-card-back');
-          flipCardBack.textContent = char;
-          
-          // Animate the flip
-          flipCard.classList.remove('flipping');
-          // Trigger reflow
-          void flipCard.offsetWidth;
-          flipCard.classList.add('flipping');
-          
-          // After animation completes, reset the card and update front face
-          setTimeout(() => {
-            flipCard.classList.remove('flipping');
-            const flipCardFront = flipCard.querySelector('.flip-card-front');
-            flipCardFront.textContent = char;
-            // Reset transform
-            flipCard.style.transform = 'rotateX(0deg)';
-          }, 600);
-        }
-        
-        digitIndex++;
-      }
-    }
-  }, 1000);
-}
 
 // New function to determine working status colors and update the clock
 function updateFlipClockColors(container) {
   // Get current working status
   const workingStatus = document.getElementById('working_status');
-  let cardColor = 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)';
-  let colonColor = 'var(--color-primary)';
+  let cardColor = COLORS.primary.gradient;
+  let colonColor = COLORS.primary.solid;
   
   if (workingStatus) {
     const statusText = workingStatus.textContent.trim().toLowerCase();
     if (statusText.includes('勤務中') || statusText.includes('working')) {
       // Working - blue gradient
-      cardColor = 'linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%)';
-      colonColor = '#06F';
+      cardColor = COLORS.working.gradient;
+      colonColor = COLORS.working.colon;
     } else if (statusText.includes('退室中') || statusText.includes('未出勤') || statusText.includes('Not Arrived')) {
       // Left - grey gradient
-      cardColor = 'linear-gradient(135deg, #6c757d 0%, #495057 100%)';
-      colonColor = '#6c757d';
+      cardColor = COLORS.notWorking.gradient;
+      colonColor = COLORS.notWorking.colon;
     }
   }
   
@@ -1401,18 +1396,7 @@ function normalizeTimeFormat(timeString) {
 
 // Handle messages from popup
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-  if (message.action === 'toggleEnhancer') {
-    if (message.enabled) {
-      document.body.classList.add('jobcan-enhanced');
-      fixDuplicateSidemenus();
-      enhanceSidemenuBehavior();
-      setupHeaderVisibility();
-      enhanceManagerNameDisplay();
-      setupFlipClock();
-    } else {
-      document.body.classList.remove('jobcan-enhanced');
-    }
-  } else if (message.action === 'toggleDarkMode') {
+  if (message.action === 'toggleDarkMode') {
     // Dark mode is a future feature
     console.log('Dark mode toggled:', message.enabled);
   } else if (message.action === 'updateClockSettings') {
@@ -1475,6 +1459,9 @@ function convertManHourModalToSidePanel() {
       if (modal.dataset.enhanced === 'true') return;
       modal.dataset.enhanced = 'true';
       
+      // Remove tabindex="-1" which can cause keyboard focus issues
+      modal.removeAttribute('tabindex');
+      
       // Get the modal header or create one if it doesn't exist
       let modalHeader = modal.querySelector('.modal-header');
       if (!modalHeader) {
@@ -1505,127 +1492,13 @@ function convertManHourModalToSidePanel() {
           // Insert at the top of modal content
           if (modalContent.firstChild) {
             modalContent.insertBefore(modalHeader, modalContent.firstChild);
-      } else {
+          } else {
             modalContent.appendChild(modalHeader);
           }
         }
       }
       
-      // Create date selector navigation controls
-      if (modalHeader) {
-        // Find the date input or hidden date field
-        const dateInput = modal.querySelector('input[name="time"], input[name="date"], input[type="date"]');
-        const dateText = modal.querySelector('.modal-body h3, .modal-body h4, .modal-title');
-        let currentDateText = '';
-        
-        if (dateText) {
-          currentDateText = dateText.textContent.trim();
-        }
-        
-        if (dateInput || currentDateText) {
-          // Create date selector container
-          const dateSelector = document.createElement('div');
-          dateSelector.className = 'date-selector';
-          
-          // Previous day button
-          const prevDayBtn = document.createElement('button');
-          prevDayBtn.type = 'button';
-          prevDayBtn.className = 'date-nav-btn prev-day';
-          prevDayBtn.innerHTML = '&laquo; 前日';
-          prevDayBtn.addEventListener('click', () => {
-            navigateToAdjacentDay(-1);
-          });
-          
-          // Current date display
-          const currentDate = document.createElement('span');
-          currentDate.className = 'current-date';
-          currentDate.textContent = currentDateText;
-          
-          // Next day button
-          const nextDayBtn = document.createElement('button');
-          nextDayBtn.type = 'button';
-          nextDayBtn.className = 'date-nav-btn next-day';
-          nextDayBtn.innerHTML = '翌日 &raquo;';
-          nextDayBtn.addEventListener('click', () => {
-            navigateToAdjacentDay(1);
-          });
-          
-          // Add all elements to the date selector
-          dateSelector.appendChild(prevDayBtn);
-          dateSelector.appendChild(currentDate);
-          dateSelector.appendChild(nextDayBtn);
-          
-          // Add date selector to modal header or body
-          if (modalHeader.querySelector('.date-selector')) {
-            // Already exists, skip
-          } else {
-            modalHeader.appendChild(dateSelector);
-          }
-          
-          // Function to navigate to adjacent day
-          function navigateToAdjacentDay(dayOffset) {
-            if (dateInput && dateInput.value) {
-              // If we have a timestamp input
-              if (dateInput.name === 'time') {
-                const timestamp = parseInt(dateInput.value, 10);
-                const date = new Date(timestamp * 1000);
-                date.setDate(date.getDate() + dayOffset);
-                dateInput.value = Math.floor(date.getTime() / 1000);
-                
-                // Submit the form or trigger navigation
-                const form = dateInput.closest('form');
-                if (form) {
-                  // Look for a date navigation submit button
-                  const dateNavBtn = form.querySelector('button[name="date_nav"], input[name="date_nav"]');
-                  if (dateNavBtn) {
-                    dateNavBtn.click();
-                  } else {
-                    // Try to find any submit button that might navigate
-                    const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
-                    if (submitBtn) {
-                      submitBtn.click();
-                    } else {
-                      form.submit();
-                    }
-                  }
-                }
-              }
-              // For regular date inputs
-              else {
-                try {
-                  const date = new Date(dateInput.value);
-                  date.setDate(date.getDate() + dayOffset);
-                  
-                  // Format date as YYYY-MM-DD
-                  const year = date.getFullYear();
-                  const month = String(date.getMonth() + 1).padStart(2, '0');
-                  const day = String(date.getDate()).padStart(2, '0');
-                  dateInput.value = `${year}-${month}-${day}`;
-                  
-                  // Submit form or trigger change event
-                  dateInput.dispatchEvent(new Event('change', { bubbles: true }));
-                  const form = dateInput.closest('form');
-                  if (form) {
-                    form.submit();
-                  }
-                } catch (e) {
-                  console.error('Error navigating date:', e);
-                }
-              }
-            } 
-            // If we don't have a date input, try to find navigation links
-            else {
-              const prevLink = dayOffset < 0 ? 
-                document.querySelector('a[href*="prev"], a[href*="previous"], a.prev, a.previous') : 
-                document.querySelector('a[href*="next"], a.next');
-              
-              if (prevLink) {
-                prevLink.click();
-              }
-            }
-          }
-        }
-      }
+      // Remove date selector navigation controls section
     }
   }, 500); // Check every 500ms
 }
@@ -1675,13 +1548,31 @@ function enhanceModalTitle() {
       timeElement.textContent = formattedTime;
       timeElement.dataset.time = formattedTime;
       
+      // Create a container for time and man-hour sum
+      const timeContainer = document.createElement('div');
+      timeContainer.className = 'time-sum-container';
+      timeContainer.style.display = 'flex';
+      timeContainer.style.alignItems = 'center';
+      
+      // Create man-hour sum element
+      const sumElement = document.createElement('div');
+      sumElement.className = 'man-hour-sum';
+      sumElement.style.fontSize = '14px';
+      sumElement.style.marginLeft = '8px';
+      sumElement.style.color = 'var(--text-secondary)';
+      sumElement.style.fontWeight = 'normal';
+      
+      // Add elements to container
+      timeContainer.appendChild(timeElement);
+      timeContainer.appendChild(sumElement);
+      
+      titleContainer.appendChild(timeContainer);
+      
       // Create date element
       const dateElement = document.createElement('div');
       dateElement.className = 'enhanced-title-date';
       dateElement.textContent = formattedDate;
       
-      // Add elements to container
-      titleContainer.appendChild(timeElement);
       titleContainer.appendChild(dateElement);
       
       // Replace the original content
@@ -1697,8 +1588,293 @@ function enhanceModalTitle() {
         hiddenInput.value = hiddenTimeMatch[1];
         modalTitle.appendChild(hiddenInput);
       }
+      
+      // Setup the observer to update the man-hour sum
+      setupManHourSumUpdater(sumElement);
     }
   }, 500); // Check every 500ms
+}
+
+// Function to setup the observer for updating the man-hour sum
+function setupManHourSumUpdater(sumElement) {
+  // Create a difference element to show the gap between actual time and entered time
+  const diffElement = document.createElement('div');
+  diffElement.className = 'man-hour-diff';
+  diffElement.style.fontSize = '12px';
+  diffElement.style.marginLeft = '8px';
+  diffElement.style.fontWeight = 'normal';
+  
+  // Insert the diff element after the sum element
+  sumElement.parentNode.insertBefore(diffElement, sumElement.nextSibling);
+  
+  // Function to calculate the sum of all man-hour inputs
+  const calculateManHourSum = () => {
+    // Find the man-hour table
+    const table = document.querySelector('.man-hour-table-edit, .jbc-table');
+    if (!table) return { hours: 0, minutes: 0 };
+    
+    let totalMinutes = 0;
+    
+    // Find all rows in the table
+    const inputs = table.querySelectorAll('input.man-hour-input[name="minutes[]"]');
+    inputs.forEach(input => {
+      if (input && input.value) {
+        // Input format is "hh:mm", need to convert to minutes
+        const timeMatch = input.value.match(/(\d+):(\d+)/);
+        if (timeMatch) {
+          const hours = parseInt(timeMatch[1], 10) || 0;
+          const minutes = parseInt(timeMatch[2], 10) || 0;
+          totalMinutes += (hours * 60) + minutes;
+        }
+      }
+    });
+    
+    // Convert total minutes back to hours and minutes
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    
+    return { hours, minutes, totalMinutes };
+  };
+  
+  // Function to get the actual work time in minutes from enhanced-title-time
+  const getActualWorkTimeInMinutes = () => {
+    const timeTitle = document.querySelector('#edit-menu-title, .enhanced-title-time');
+    
+    if (!timeTitle) return 0;
+    
+    // Extract the time text
+    const timeMatch = timeTitle.textContent.match(/(\d+):(\d+)/);
+    if (!timeMatch) return 0;
+    
+    // Calculate total minutes
+    const hours = parseInt(timeMatch[1], 10) || 0;
+    const minutes = parseInt(timeMatch[2], 10) || 0;
+    return (hours * 60) + minutes;
+  };
+  
+  // Update the sum and show difference
+  const updateSum = () => {
+    const { hours, minutes, totalMinutes } = calculateManHourSum();
+    const actualMinutes = getActualWorkTimeInMinutes();
+    
+    // Update the sum display
+    sumElement.textContent = `合計: ${hours}時間${minutes}分`;
+    
+    // Calculate difference
+    const difference = actualMinutes - totalMinutes;
+    
+    // Update or create diff element
+    if (difference !== 0) {
+      diffElement.textContent = `差: ${Math.abs(Math.floor(difference / 60))}時間${Math.abs(difference % 60)}分 ${difference > 0 ? '不足' : '超過'}`;
+      diffElement.classList.add('man-hour-diff');
+      
+      // Always ensure jbc-text-danger is applied for both cases but with different styling in CSS
+      diffElement.classList.add('jbc-text-danger');
+      
+      // Add a specific class to distinguish between shortage and excess
+      if (difference > 0) {
+        diffElement.classList.add('shortage');
+        diffElement.classList.remove('excess');
+      } else {
+        diffElement.classList.add('excess');
+        diffElement.classList.remove('shortage');
+      }
+      
+      // Create suggestion chips for all man-hour inputs
+      createSuggestionChips(difference, totalMinutes);
+    } else {
+      diffElement.textContent = '';
+      diffElement.classList.remove('jbc-text-danger', 'shortage', 'excess');
+      // Remove any suggestion chips since there's no difference
+      removeSuggestionChips();
+    }
+  };
+  
+  // Create suggestion chips for man-hour inputs
+  const createSuggestionChips = (difference, currentTotalMinutes) => {
+    // Find all man-hour inputs
+    const inputs = document.querySelectorAll('input.man-hour-input[name="minutes[]"]');
+    
+    if (inputs.length === 0) return;
+    
+    // Loop through each input and attach suggestion chips
+    inputs.forEach(input => {
+      // Skip if the input already has a suggestion chip
+      if (input.nextElementSibling && input.nextElementSibling.classList.contains('time-suggestion-chip')) {
+        return;
+      }
+      
+      // Extract current input value in minutes
+      let currentInputMinutes = 0;
+      const timeMatch = input.value.match(/(\d+):(\d+)/);
+      if (timeMatch) {
+        const hours = parseInt(timeMatch[1], 10) || 0;
+        const minutes = parseInt(timeMatch[2], 10) || 0;
+        currentInputMinutes = (hours * 60) + minutes;
+      }
+      
+      // Create the suggestion chip element
+      const suggestionChip = document.createElement('div');
+      suggestionChip.className = 'time-suggestion-chip';
+      suggestionChip.style.display = 'none'; // Initially hidden
+      
+      // Position the chip right after the input
+      input.parentNode.insertBefore(suggestionChip, input.nextSibling);
+      
+      // Calculate suggested time value (current value + difference/number of inputs)
+      const calculateSuggestedTime = () => {
+        // Get the current values again since they might have changed
+        let currentTotal = 0;
+        const allInputs = document.querySelectorAll('input.man-hour-input[name="minutes[]"]');
+        allInputs.forEach(inp => {
+          const match = inp.value.match(/(\d+):(\d+)/);
+          if (match) {
+            const h = parseInt(match[1], 10) || 0;
+            const m = parseInt(match[2], 10) || 0;
+            currentTotal += (h * 60) + m;
+          }
+        });
+        
+        const actualMinutes = getActualWorkTimeInMinutes();
+        const currentDifference = actualMinutes - currentTotal;
+        
+        // Get this input's current value
+        let thisInputMinutes = 0;
+        const thisMatch = input.value.match(/(\d+):(\d+)/);
+        if (thisMatch) {
+          const h = parseInt(thisMatch[1], 10) || 0;
+          const m = parseInt(thisMatch[2], 10) || 0;
+          thisInputMinutes = (h * 60) + m;
+        }
+        
+        // Calculate suggested value for this input
+        const suggestedMinutes = thisInputMinutes + currentDifference;
+        
+        if (suggestedMinutes < 0) return '0:00'; // Can't have negative time
+        
+        const suggestedHours = Math.floor(suggestedMinutes / 60);
+        const suggestedMins = suggestedMinutes % 60;
+        
+        return `${suggestedHours}:${suggestedMins.toString().padStart(2, '0')}`;
+      };
+      
+      // Update chip content and display it
+      const updateChip = () => {
+        const suggested = calculateSuggestedTime();
+        suggestionChip.textContent = `提案: ${suggested}`;
+        suggestionChip.dataset.value = suggested;
+        
+        suggestionChip.style.display = 'block';
+      };
+      
+      // Add event listener to show chip on hover and input
+      input.addEventListener('mouseover', updateChip);
+      input.addEventListener('focus', updateChip);
+      input.addEventListener('input', updateChip);
+      
+      // Hide the chip when mouse leaves (unless input is focused)
+      input.addEventListener('mouseout', () => {
+        if (document.activeElement !== input) {
+          suggestionChip.style.display = 'none';
+        }
+      });
+      
+      // Hide the chip when input loses focus
+      input.addEventListener('blur', () => {
+        if (!suggestionChip.matches(':hover')) {
+          suggestionChip.style.display = 'none';
+        }
+      });
+      
+      // Make the chip clickable to apply the suggested value
+      suggestionChip.addEventListener('click', () => {
+        input.value = suggestionChip.dataset.value;
+        
+        // Trigger change event on the input
+        const event = new Event('change', { bubbles: true });
+        input.dispatchEvent(event);
+        
+        // Update the sum
+        updateSum();
+      });
+      
+      // Also keep chip visible when hovering over it
+      suggestionChip.addEventListener('mouseover', () => {
+        suggestionChip.style.display = 'block';
+      });
+      
+      suggestionChip.addEventListener('mouseout', () => {
+        if (document.activeElement !== input) {
+          suggestionChip.style.display = 'none';
+        }
+      });
+    });
+  };
+  
+  // Remove all suggestion chips
+  const removeSuggestionChips = () => {
+    const chips = document.querySelectorAll('.time-suggestion-chip');
+    chips.forEach(chip => chip.remove());
+  };
+  
+  // Start observing the man-hour table
+  const checkForTable = setInterval(() => {
+    const table = document.querySelector('.man-hour-table-edit, .jbc-table');
+    if (table) {
+      clearInterval(checkForTable);
+      
+      // Set initial calculation once the table is found
+      updateSum();
+      
+      // Observe the table for input value changes
+      const observer = new MutationObserver((mutations) => {
+        let shouldUpdate = false;
+        
+        mutations.forEach(mutation => {
+          // Check if the mutation is an attribute change on an input element
+          if (mutation.type === 'attributes' && 
+              mutation.target.nodeName === 'INPUT' && 
+              mutation.attributeName === 'value') {
+            shouldUpdate = true;
+          }
+          
+          // Check if nodes were added or removed
+          if (mutation.type === 'childList' && 
+             (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)) {
+            shouldUpdate = true;
+          }
+        });
+        
+        if (shouldUpdate) {
+          updateSum();
+        }
+      });
+      
+      observer.observe(table, {
+        attributes: true,
+        attributeFilter: ['value'],
+        attributeOldValue: true,
+        childList: true,
+        subtree: true
+      });
+      
+      // Also add input event listeners to catch typing
+      const inputs = table.querySelectorAll('input.man-hour-input[name="minutes[]"]');
+      inputs.forEach(input => {
+        input.addEventListener('input', updateSum);
+        input.addEventListener('change', updateSum);
+      });
+      
+      // Check for form interactions that might modify values
+      const form = document.querySelector('form');
+      if (form) {
+        form.addEventListener('change', updateSum);
+      }
+    }
+  }, 200); // Reduce interval to check more frequently
+  
+  // Initial calculation attempt
+  updateSum();
 }
 
 // Enhance the select dropdown lists in the man-hour modal with modern styling
@@ -1716,6 +1892,17 @@ function enhanceManHourSelectLists() {
                 enhanceSelectElement(select);
               }
             });
+            
+            // If this is a new row from addRecord(), auto-open the first project select
+            if (node.tagName === 'TR' && node.querySelector('select')) {
+              // Small delay to ensure DOM is ready
+              setTimeout(() => {
+                const projectSelect = node.querySelector('.custom-select-wrapper.project-select');
+                if (projectSelect) {
+                  projectSelect.click();
+                }
+              }, 100);
+            }
           }
         });
       }
@@ -1761,7 +1948,7 @@ function enhanceManHourSelectLists() {
             sidepanel.classList.remove('open');
             setTimeout(() => {
               sidepanel.remove();
-            }, 300); // Wait for the transition to complete
+            }, 0); // Wait for the transition to complete
           }
         }
       }
@@ -1864,11 +2051,60 @@ function enhanceSelectElement(selectElement) {
     // Create header for the sidepanel
     const panelHeader = document.createElement('div');
     panelHeader.className = 'sidepanel-header';
+    panelHeader.style.display = 'flex';
+    panelHeader.style.alignItems = 'center';
+    panelHeader.style.gap = '10px';
     
     const panelTitle = document.createElement('h3');
     panelTitle.textContent = isProject ? 'プロジェクト選択' : 'タスク選択';
+    panelTitle.style.whiteSpace = 'nowrap';
+    
+    // Create search input field
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.className = 'sidepanel-search';
+    searchInput.placeholder = '検索...';
+    searchInput.style.flex = '1';
+    searchInput.style.padding = '6px 10px';
+    searchInput.style.borderRadius = '6px';
+    searchInput.style.border = '1px solid var(--border-color, #DEE2E6)';
+    searchInput.style.fontSize = '13px';
+    
+    // Add search functionality
+    searchInput.addEventListener('input', (e) => {
+      console.log('Search input event fired');
+      const searchTerm = e.target.value.toLowerCase();
+      // Get the options list directly from the current sidepanel
+      // This ensures we're accessing the correct list that's in the DOM
+      const currentOptionsList = sidepanel.querySelector('.options-list');
+      const options = currentOptionsList.querySelectorAll('.option-item');
+      console.log('Found options:', options);
+
+      options.forEach(option => {
+        const text = option.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          option.style.display = '';
+        } else {
+          option.style.display = 'none';
+        }
+      });
+    });
+    
+    // Add close button
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'sidepanel-close';
+    closeBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    closeBtn.style.flexShrink = '0';
+    closeBtn.addEventListener('click', () => {
+      sidepanel.classList.remove('open');
+      setTimeout(() => {
+        sidepanel.remove();
+      }, 300); // Wait for the transition to complete
+    });
     
     panelHeader.appendChild(panelTitle);
+    panelHeader.appendChild(searchInput);
+    panelHeader.appendChild(closeBtn);
     sidepanel.appendChild(panelHeader);
     
     // Add tabs container
@@ -1990,18 +2226,6 @@ function enhanceSelectElement(selectElement) {
       });
     });
     
-    // Add close button
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'sidepanel-close';
-    closeBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-    closeBtn.addEventListener('click', () => {
-      sidepanel.classList.remove('open');
-      setTimeout(() => {
-        sidepanel.remove();
-      }, 300); // Wait for the transition to complete
-    });
-    panelHeader.appendChild(closeBtn);
-    
     // Add to document body
     document.body.appendChild(sidepanel);
     
@@ -2017,7 +2241,65 @@ function enhanceSelectElement(selectElement) {
     // Show the sidepanel with animation
     setTimeout(() => {
       sidepanel.classList.add('open');
+      
+      // Auto-focus the search field after animation starts
+      setTimeout(() => {
+        searchInput.focus();
+      }, 100);
     }, 50);
+    
+    // Add keyboard navigation for the options list
+    let currentFocusedIndex = -1;
+    const highlightClass = 'keyboard-focused';
+    
+    searchInput.addEventListener('keydown', (e) => {
+      const options = optionsList.querySelectorAll('.option-item');
+      const visibleOptions = Array.from(options).filter(option => option.style.display !== 'none');
+      
+      // If there are no visible options, don't do anything
+      if (!visibleOptions.length) return;
+      
+      // Remove current highlight
+      const removeHighlight = () => {
+        if (currentFocusedIndex >= 0 && currentFocusedIndex < visibleOptions.length) {
+          visibleOptions[currentFocusedIndex].classList.remove(highlightClass);
+        }
+      };
+      
+      // Add highlight to new index
+      const addHighlight = () => {
+        if (currentFocusedIndex >= 0 && currentFocusedIndex < visibleOptions.length) {
+          visibleOptions[currentFocusedIndex].classList.add(highlightClass);
+          // Ensure the item is visible by scrolling if needed
+          visibleOptions[currentFocusedIndex].scrollIntoView({ block: 'nearest' });
+        }
+      };
+      
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault(); // Prevent scrolling the page
+          removeHighlight();
+          currentFocusedIndex = (currentFocusedIndex + 1) % visibleOptions.length;
+          addHighlight();
+          break;
+          
+        case 'ArrowUp':
+          e.preventDefault(); // Prevent scrolling the page
+          removeHighlight();
+          currentFocusedIndex = currentFocusedIndex <= 0 ? 
+            visibleOptions.length - 1 : currentFocusedIndex - 1;
+          addHighlight();
+          break;
+          
+        case 'Enter':
+          // If an item is highlighted, select it
+          if (currentFocusedIndex >= 0 && currentFocusedIndex < visibleOptions.length) {
+            e.preventDefault(); // Prevent form submission
+            visibleOptions[currentFocusedIndex].click(); // Trigger the click event
+          }
+          break;
+      }
+    });
     
     return sidepanel;
   }
@@ -3637,100 +3919,9 @@ function enhanceTitle(titleContainer) {
 
 // Monitor and preserve the un-match-time element visibility
 function monitorUnmatchTime() {
-  // Find the un-match-time element
-  const unmatchTimeElement = document.getElementById('un-match-time');
-  if (!unmatchTimeElement) return;
-
-  // Store the original content and state
-  let originalContent = unmatchTimeElement.innerHTML;
-  let isUnmatched = originalContent.trim() !== '';
-
-  // Apply enhanced styling
-  if (isUnmatched) {
-    unmatchTimeElement.classList.add('enhanced-warning');
-  }
-
-  // Function to check and restore content if needed
-  const checkAndRestoreContent = () => {
-    // If it was unmatched before and now empty, restore it
-    if (isUnmatched && unmatchTimeElement.innerHTML.trim() === '') {
-      unmatchTimeElement.innerHTML = originalContent;
-    }
-    // If it has new content, update our reference
-    else if (unmatchTimeElement.innerHTML.trim() !== '' && unmatchTimeElement.innerHTML !== originalContent) {
-      originalContent = unmatchTimeElement.innerHTML;
-      isUnmatched = true;
-      unmatchTimeElement.classList.add('enhanced-warning');
-    }
-  };
-
-  // Monitor inputs and changes
-  document.addEventListener('change', (event) => {
-    if (event.target && 
-       (event.target.name && (event.target.name.includes('man-hour') || event.target.name.includes('manhour')) ||
-        event.target.classList.contains('man-hour-input'))) {
-      // When man-hour input changes, check if we need to restore the warning
-      setTimeout(checkAndRestoreContent, 100);
-    }
-  });
-
-  // Monitor form submissions
-  document.addEventListener('submit', (event) => {
-    const form = event.target;
-    if (form && (form.action.includes('man-hour') || form.action.includes('manhour'))) {
-      // After form submission, restore the warning if needed
-      setTimeout(checkAndRestoreContent, 500);
-    }
-  });
-
-  // Monitor clicks on any buttons
-  document.addEventListener('click', (event) => {
-    const isButton = 
-      event.target.tagName === 'BUTTON' ||
-      (event.target.tagName === 'INPUT' && (event.target.type === 'submit' || event.target.type === 'button')) ||
-      event.target.classList.contains('btn') ||
-      event.target.closest('button') || 
-      event.target.closest('input[type="submit"]') ||
-      event.target.closest('input[type="button"]');
-    
-    if (isButton) {
-      // After button click, check if we need to restore the warning
-      setTimeout(checkAndRestoreContent, 300);
-    }
-  });
-
-  // Simple mutation observer to watch for direct changes to the element
-  const observer = new MutationObserver(() => {
-    setTimeout(checkAndRestoreContent, 0);
-  });
-
-  // Watch the un-match-time element itself
-  observer.observe(unmatchTimeElement, {
-    characterData: true,
-    childList: true,
-    subtree: true
-  });
-
-  // Watch for any man-hour-input changes in the document
-  const docObserver = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.target.classList && 
-          (mutation.target.classList.contains('man-hour-input') || 
-           mutation.target.closest('.man-hour-input'))) {
-        setTimeout(checkAndRestoreContent, 100);
-      }
-    }
-  });
-
-  // Observe document for man-hour-input changes
-  docObserver.observe(document.body, {
-    attributes: true,
-    attributeFilter: ['value'],
-    subtree: true
-  });
-
-  // Simple periodic check as a fallback
-  setInterval(checkAndRestoreContent, 2000);
+  // Let the original website handle un-match-time updates
+  // This function has been removed to fix issues with 工数 column changes not updating the un-match-time
+  return;
 }
 
 // Fix settings icon SVG
@@ -4068,413 +4259,115 @@ function updateClockStyle(newStyle) {
   });
 }
 
-// Function to update the work progress bar
-function updateWorkProgressBar(container) {
-  const progressContainer = container.querySelector('.work-progress-container');
-  if (!progressContainer) return;
+// Remove border-right properties from the jbcid-logo element
+function removeLogoBorder() {
+  // Try multiple possible selectors for the logo element
+  const logoSelectors = ['.jbcid-logo', '.jbc-logo', '.logo', 'img.logo', '.jbcid-header img', '.jbcid-navbar-logo', '.brand-logo'];
   
-  const progressTrack = progressContainer.querySelector('.work-progress-track');
-  const progressFill = progressContainer.querySelector('.work-progress-fill');
-  const percentageIndicator = progressContainer.querySelector('.work-progress-percentage');
-  
-  // Define work hours
-  const workStartHour = 10; // 10:00
-  const workEndHour = 19;   // 19:00
-  const workTotalMinutes = (workEndHour - workStartHour) * 60; // 9 hours = 540 minutes
-  
-  // Get current time
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
-  const currentTimeStr = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
-  
-  // Add current time indicator
-  let timeIndicator = progressContainer.querySelector('.current-time-indicator');
-  if (!timeIndicator) {
-    timeIndicator = document.createElement('div');
-    timeIndicator.className = 'current-time-indicator';
-    timeIndicator.style.position = 'absolute';
-    timeIndicator.style.top = '2px';
-    timeIndicator.style.width = '3px';
-    timeIndicator.style.height = '12px';
-    timeIndicator.style.backgroundColor = '#FF5722';
-    timeIndicator.style.zIndex = '2';
-    timeIndicator.style.boxShadow = '0 0 4px rgba(255, 87, 34, 0.6)';
-    timeIndicator.style.borderRadius = '1.5px';
-    timeIndicator.style.transform = 'translateX(-50%)';
+  logoSelectors.forEach(selector => {
+    const logoElements = document.querySelectorAll(selector);
     
-    const timeLabel = document.createElement('div');
-    timeLabel.className = 'current-time-label';
-    timeLabel.style.position = 'absolute';
-    timeLabel.style.top = '-15px';
-    timeLabel.style.fontSize = '10px';
-    timeLabel.style.fontWeight = 'bold';
-    timeLabel.style.color = '#FF5722';
-    timeLabel.style.transform = 'translateX(-50%)';
-    timeLabel.style.whiteSpace = 'nowrap';
-    timeLabel.style.textShadow = '0 0 2px rgba(255, 255, 255, 0.8)';
-    
-    timeIndicator.appendChild(timeLabel);
-    progressTrack.appendChild(timeIndicator);
-  }
-  
-  // Calculate percentage for time indicator position relative to 24h day
-  const currentMinuteOfDay = currentHour * 60 + currentMinute;
-  const workdayStart = workStartHour * 60;
-  const workdayEnd = workEndHour * 60;
-  
-  // Calculate where to put the time indicator on the track
-  let dailyPercentage;
-  if (currentMinuteOfDay < workdayStart) {
-    dailyPercentage = 0; // Before workday starts, pin to beginning
-  } else if (currentMinuteOfDay > workdayEnd) {
-    dailyPercentage = 100; // After workday ends, pin to end
-  } else {
-    // During workday, calculate the accurate position
-    dailyPercentage = ((currentMinuteOfDay - workdayStart) / workTotalMinutes) * 100;
-  }
-  
-  timeIndicator.style.left = `${dailyPercentage}%`;
-  
-  const timeLabel = timeIndicator.querySelector('.current-time-label');
-  timeLabel.textContent = currentTimeStr;
-  
-  // Update indicator visibility based on whether we're within ±3 hours of the workday
-  const isNearWorkday = currentMinuteOfDay >= (workdayStart - 180) && 
-                         currentMinuteOfDay <= (workdayEnd + 180);
-  timeIndicator.style.opacity = isNearWorkday ? '1' : '0.5';
-  
-  // Calculate progress
-  let progress = 0;
-  let progressText = '';
-  
-  if (currentHour < workStartHour) {
-    // Before work hours
-    const minutesUntilStart = workdayStart - currentMinuteOfDay;
-    const hoursUntil = Math.floor(minutesUntilStart / 60);
-    const minsUntil = minutesUntilStart % 60;
-    
-    progress = 0;
-    progressText = `出勤時間まで ${hoursUntil}時間${minsUntil}分`;
-    
-    // Update visual cues
-    progressFill.style.backgroundColor = 'rgba(120, 130, 140, 0.4)';
-    progressFill.style.boxShadow = 'none';
-    
-  } else if (currentHour >= workEndHour) {
-    // After work hours
-    const minutesAfterEnd = currentMinuteOfDay - workdayEnd;
-    const hoursAfter = Math.floor(minutesAfterEnd / 60);
-    const minsAfter = minutesAfterEnd % 60;
-    
-    progress = 100;
-    progressText = `${currentTimeStr} • 定時は (${hoursAfter}時間 ${minsAfter}分 前)`;
-    
-    // Update visual cues for completed workday
-    progressFill.style.backgroundColor = '#28A745'; // Green when complete
-    progressFill.style.boxShadow = '0 0 8px rgba(40, 167, 69, 0.3)';
-    
-  } else {
-    // During work hours
-    const minutesSinceStart = currentMinuteOfDay - workdayStart;
-    progress = Math.min(100, (minutesSinceStart / workTotalMinutes) * 100);
-    
-    // Calculate time remaining
-    const minutesRemaining = workTotalMinutes - minutesSinceStart;
-    const hoursRemaining = Math.floor(minutesRemaining / 60);
-    const minsRemaining = minutesRemaining % 60;
-    
-    // Calculate percentage with more precision
-    const percentage = progress.toFixed(1);
-    
-    progressText = `${currentTimeStr} • ${percentage}% 経過 • 残り： ${hoursRemaining}時間 ${minsRemaining}分 `;
-    
-    // Update color based on progress
-    if (progress >= 90) {
-      progressFill.style.backgroundColor = '#28A745'; // Green when almost complete
-      progressFill.style.boxShadow = '0 0 8px rgba(40, 167, 69, 0.3)';
-    } else if (progress >= 75) {
-      progressFill.style.backgroundColor = '#17a2b8'; // Teal for good progress
-      progressFill.style.boxShadow = '0 0 8px rgba(23, 162, 184, 0.3)';
-    } else if (progress >= 50) {
-      progressFill.style.backgroundColor = '#FFC107'; // Yellow for halfway
-      progressFill.style.boxShadow = '0 0 8px rgba(255, 193, 7, 0.3)';
-    } else if (progress >= 25) {
-      progressFill.style.backgroundColor = '#fd7e14'; // Orange for getting started
-      progressFill.style.boxShadow = '0 0 8px rgba(253, 126, 20, 0.3)';
-    } else {
-      progressFill.style.backgroundColor = 'var(--color-primary)'; // Default blue
-      progressFill.style.boxShadow = '0 0 8px rgba(0, 102, 221, 0.3)';
-    }
-  }
-  
-  // Animate the progress bar smoothly
-  progressFill.style.width = `${progress}%`;
-  
-  // Update the text indicator
-  percentageIndicator.textContent = progressText;
-  
-  // Visual pulse effect for time indicator
-  if (!timeIndicator.dataset.animating) {
-    timeIndicator.dataset.animating = 'true';
-    
-    // Add subtle pulse animation
-    const pulseAnimation = () => {
-      timeIndicator.animate(
-        [
-          { boxShadow: '0 0 4px rgba(255, 87, 34, 0.6)' },
-          { boxShadow: '0 0 8px rgba(255, 87, 34, 0.8)' },
-          { boxShadow: '0 0 4px rgba(255, 87, 34, 0.6)' }
-        ],
-        {
-          duration: 2000,
-          iterations: Infinity
-        }
-      );
-    };
-    
-    pulseAnimation();
-  }
-}
-
-// ... existing code ...
-function makeTabsContainerDraggable(tabsContainer) {
-  if (!tabsContainer || tabsContainer.dataset.draggable === 'true') return;
-  
-  // Mark as draggable
-  tabsContainer.dataset.draggable = 'true';
-  
-  // Add cursor style to indicate it's draggable
-  tabsContainer.style.cursor = 'grab';
-  
-  // Variables to track drag state
-  let isDown = false;
-  let startX;
-  let scrollLeft;
-  
-  // Mouse events
-  tabsContainer.addEventListener('mousedown', (e) => {
-    isDown = true;
-    tabsContainer.style.cursor = 'grabbing';
-    startX = e.pageX - tabsContainer.offsetLeft;
-    scrollLeft = tabsContainer.scrollLeft;
-    e.preventDefault();
-  });
-  
-  tabsContainer.addEventListener('mouseleave', () => {
-    isDown = false;
-    tabsContainer.style.cursor = 'grab';
-  });
-  
-  tabsContainer.addEventListener('mouseup', () => {
-    isDown = false;
-    tabsContainer.style.cursor = 'grab';
-  });
-  
-  tabsContainer.addEventListener('mousemove', (e) => {
-    if (!isDown) return;
-    const x = e.pageX - tabsContainer.offsetLeft;
-    const walk = (x - startX) * 2; // Scroll speed multiplier
-    tabsContainer.scrollLeft = scrollLeft - walk;
-  });
-  
-  // Touch events for mobile
-  tabsContainer.addEventListener('touchstart', (e) => {
-    isDown = true;
-    startX = e.touches[0].pageX - tabsContainer.offsetLeft;
-    scrollLeft = tabsContainer.scrollLeft;
-  }, { passive: true });
-  
-  tabsContainer.addEventListener('touchend', () => {
-    isDown = false;
-  });
-  
-  tabsContainer.addEventListener('touchmove', (e) => {
-    if (!isDown) return;
-    const x = e.touches[0].pageX - tabsContainer.offsetLeft;
-    const walk = (x - startX) * 2;
-    tabsContainer.scrollLeft = scrollLeft - walk;
-  }, { passive: true });
-}
-
-// ... existing code ...
-
-// Modify the createSidepanel function to make tabs container draggable
-function createSidepanel() {
-  // Remove any existing sidepanels
-  const existingSidepanel = document.querySelector('.select-sidepanel');
-  if (existingSidepanel) {
-    existingSidepanel.remove();
-  }
-  
-  // Create a new sidepanel
-  const sidepanel = document.createElement('div');
-  sidepanel.className = 'select-sidepanel';
-  if (isProject) {
-    sidepanel.classList.add('project-panel');
-  } else if (isTask) {
-    sidepanel.classList.add('task-panel');
-  }
-  
-  // Create header for the sidepanel
-  const panelHeader = document.createElement('div');
-  panelHeader.className = 'sidepanel-header';
-  
-  const panelTitle = document.createElement('h3');
-  panelTitle.textContent = isProject ? 'プロジェクト選択' : 'タスク選択';
-  
-  panelHeader.appendChild(panelTitle);
-  sidepanel.appendChild(panelHeader);
-  
-  // Add tabs container
-  const tabsContainer = document.createElement('div');
-  tabsContainer.className = 'tabs-container';
-  
-  // Generate tab categories from option text
-  const categories = generateCategories(selectElement);
-  
-  // Create "All" tab first
-  const allTab = document.createElement('div');
-  allTab.className = 'tab active';
-  allTab.dataset.category = 'all';
-  allTab.textContent = 'すべて';
-  tabsContainer.appendChild(allTab);
-  
-  // Create tabs for each category
-  categories.forEach(category => {
-    const tab = document.createElement('div');
-    tab.className = 'tab';
-    tab.dataset.category = category.id;
-    tab.textContent = category.name;
-    tabsContainer.appendChild(tab);
-  });
-  
-  sidepanel.appendChild(tabsContainer);
-  
-  // Make tabs container draggable
-  makeTabsContainerDraggable(tabsContainer);
-  
-  // Create options container
-  const optionsContainer = document.createElement('div');
-  optionsContainer.className = 'options-container';
-  
-  // Create options list
-  const optionsList = document.createElement('ul');
-  optionsList.className = 'options-list';
-  
-  // Add "no options" message if needed
-  if (selectElement.options.length <= 1 || (selectElement.options.length === 1 && selectElement.options[0].value === '')) {
-    const noOptions = document.createElement('li');
-    noOptions.className = 'no-options';
-    noOptions.textContent = isProject ? 'プロジェクトがありません' : 'タスクがありません';
-    optionsList.appendChild(noOptions);
-      } else {
-    // Add all options to the list and assign categories
-    for (let i = 0; i < selectElement.options.length; i++) {
-      const option = selectElement.options[i];
-      
-      // Skip empty options or those with no value
-      if (!option.value && i > 0) continue;
-      
-      const optionItem = document.createElement('li');
-      optionItem.className = 'option-item';
-      optionItem.dataset.value = option.value;
-      optionItem.textContent = option.text;
-      
-      // Assign categories to this option
-      const optionCategories = assignOptionToCategories(option.text, categories);
-      optionItem.dataset.categories = optionCategories.join(',');
-      
-      if (option.selected) {
-        optionItem.classList.add('selected');
-      }
-      
-      // Handle option selection
-      optionItem.addEventListener('click', () => {
-        // Update the actual select element
-        selectElement.value = option.value;
-        
-        // Trigger change event on the original select
-        const event = new Event('change', { bubbles: true });
-        selectElement.dispatchEvent(event);
-        
-        // Update the display
-        selectDisplay.textContent = option.text;
-        selectDisplay.classList.remove('placeholder');
-        
-        // Update the selected item in the list
-        const allOptions = optionsList.querySelectorAll('.option-item');
-        allOptions.forEach(opt => opt.classList.remove('selected'));
-        optionItem.classList.add('selected');
-        
-        // Don't close the panel, let the user make multiple selections
+    if (logoElements.length > 0) {
+      logoElements.forEach(logo => {
+        // Remove border-right related properties with !important flag
+        logo.style.setProperty('border-right-color', 'transparent', 'important');
+        logo.style.setProperty('border-right-style', 'none', 'important');
+        logo.style.setProperty('border-right-width', '0', 'important');
+        logo.style.setProperty('border-right', 'none', 'important');
       });
-      
-      optionsList.appendChild(optionItem);
     }
-  }
+  });
   
-  optionsContainer.appendChild(optionsList);
-  sidepanel.appendChild(optionsContainer);
+  // Also inject a style tag for cases where direct style manipulation doesn't work
+  const styleTag = document.createElement('style');
+  styleTag.textContent = `
+    .jbcid-logo, .jbc-logo, .jbcid-header img, .jbcid-navbar-logo, .brand-logo {
+      border-right-color: transparent !important;
+      border-right-style: none !important;
+      border-right-width: 0 !important;
+      border-right: none !important;
+    }
+  `;
+  document.head.appendChild(styleTag);
+}
+
+// Setup keyboard shortcuts for man-hour modal
+function setupManHourKeyboardShortcuts() {
+  // Add global keyboard event listener
+  document.addEventListener('keydown', function(e) {
+    // Check if man-hour modal is open
+    const modal = document.getElementById('man-hour-manage-modal');
+    if (!modal || !modal.classList.contains('show')) return;
+    
+    // Shift+Enter to add new record
+    if (e.key === 'Enter' && e.shiftKey && !e.metaKey && !e.ctrlKey) {
+      e.preventDefault();
+      // Find and click the addRecord button
+      const addRecordBtn = document.querySelector('button[onclick*="addRecord"], a[onclick*="addRecord"]');
+      if (addRecordBtn) {
+        addRecordBtn.click();
+      } else {
+        // If button not found, try to call the function directly
+        if (typeof addRecord === 'function') {
+          addRecord();
+        }
+      }
+    }
+    
+    // Cmd+Enter (Mac) or Ctrl+Enter (Windows) to save
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      // Find and click the save button
+      const saveBtn = document.querySelector('#save, button[type="submit"], input[type="submit"]');
+      if (saveBtn) {
+        saveBtn.click();
+      } else {
+        // If button not found, try to call the function directly
+        if (typeof pushSave === 'function') {
+          pushSave();
+        }
+      }
+    }
+    
+    // Escape key to close modal
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      // Find and click the close button
+      const closeBtn = modal.querySelector('.close, [data-dismiss="modal"]');
+      if (closeBtn) {
+        closeBtn.click();
+      } else {
+        // If close button not found, try to hide the modal
+        modal.classList.remove('show');
+        const backdrop = document.querySelector('.modal-backdrop');
+        if (backdrop) {
+          backdrop.remove();
+        }
+        document.body.classList.remove('modal-open');
+        document.body.style.paddingRight = '';
+      }
+    }
+  });
   
-  // Add tab click event listeners
-  const tabs = tabsContainer.querySelectorAll('.tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      // Remove active class from all tabs
-      tabs.forEach(t => t.classList.remove('active'));
-      // Add active class to clicked tab
-      tab.classList.add('active');
+  // Intercept the original addRecord function to trigger project select automatically
+  if (window.addRecord && typeof window.addRecord === 'function') {
+    const originalAddRecord = window.addRecord;
+    window.addRecord = function() {
+      // Call the original function
+      originalAddRecord.apply(this, arguments);
       
-      // Filter options based on selected tab
-      const selectedCategory = tab.dataset.category;
-      const options = optionsList.querySelectorAll('.option-item');
-      
-      options.forEach(option => {
-        if (selectedCategory === 'all') {
-          option.style.display = '';
-        } else {
-          const optionCategories = option.dataset.categories ? option.dataset.categories.split(',') : [];
-          if (optionCategories.includes(selectedCategory)) {
-            option.style.display = '';
-          } else {
-            option.style.display = 'none';
+      // After a small delay, click the project select in the last row
+      setTimeout(() => {
+        const rows = document.querySelectorAll('.man-hour-table-edit tr, .jbc-table tr');
+        if (rows.length > 0) {
+          const lastRow = rows[rows.length - 1];
+          const projectSelect = lastRow.querySelector('.custom-select-wrapper.project-select');
+          if (projectSelect) {
+            projectSelect.click();
           }
         }
-      });
-    });
-  });
-  
-  // Add close button
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'sidepanel-close';
-  closeBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  closeBtn.addEventListener('click', () => {
-    sidepanel.classList.remove('open');
-    setTimeout(() => {
-      sidepanel.remove();
-    }, 300); // Wait for the transition to complete
-  });
-  panelHeader.appendChild(closeBtn);
-  
-  // Add to document body
-  document.body.appendChild(sidepanel);
-  
-  // Position next to the modal
-  const modal = document.getElementById('man-hour-manage-modal');
-  if (modal) {
-    // Calculate position (to the left of the modal)
-    const modalRect = modal.getBoundingClientRect();
-    sidepanel.style.top = `${modalRect.top}px`;
-    sidepanel.style.left = `${modalRect.left - 400}px`; // 400px is the width of the sidepanel
+      }, 100);
+    };
   }
-  
-  // Show the sidepanel with animation
-  setTimeout(() => {
-    sidepanel.classList.add('open');
-  }, 50);
-  
-  return sidepanel;
 }
 
-// ... existing code ...

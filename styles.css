@@ -171,8 +171,8 @@
   .jobcan-enhanced body.modal-open #main-content,
   .jobcan-enhanced #man-hour-manage-modal.show ~ .jbc-card,
   .jobcan-enhanced body.modal-open .jbc-card {
-    width: calc(100% - 550px) !important;
-    margin-right: 550px !important;
+    width: calc(100% - 500px) !important;
+    margin-right: 500px !important;
   }
   
   /* Main content spacing when using jbcid */
@@ -202,13 +202,22 @@
     height: 80px;
     display: flex;
     align-items: center;
-    padding: 24px 16px;
+    padding: 32px 16px;
   }
   
   .jobcan-enhanced #header img,
   .jobcan-enhanced .headerArea img {
-    height: 28px;
+    height: 20px;
     filter: brightness(1.2);
+  }
+  
+  /* Remove border-right from jbcid-logo */
+  .jobcan-enhanced .jbcid-logo {
+    border-right-color: transparent !important;
+    border-right-style: none !important;
+    border-right-width: 0 !important;
+    background-color: #0055b3;
+    border-radius: 12px;
   }
   
   /* Header visibility control */
@@ -242,6 +251,8 @@
   /* Override for .jbcid-header > .jbcid-navbar to remove background-color */
   .jbcid-header > .jbcid-navbar {
     background-color: unset !important;
+    padding-top: 8px;
+    padding-left: 16px;
   }
   
   /* Manager name and staff dropdown styling */
@@ -1005,23 +1016,28 @@
   .jobcan-enhanced .table,
   .jobcan-enhanced .jbc-table {
     width: 100%;
-    border-collapse: collapse !important;
+    border-collapse: collapse !important; /* Changed from separate to collapse */
     border-spacing: 0;
     background-color: var(--card-bg);
-    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    font-size: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: none;
-    font-size: 14px;
-    border: 1px solid #d0d5dd;
+    margin-bottom: 1.5rem;
   }
   
   .jobcan-enhanced .table-responsive {
-    border-radius: var(--border-radius);
-    overflow: hidden;
+    border-radius: 8px;
     background-color: var(--card-bg);
     border: none;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
   }
-  
+
+  /* Table header styling */
   .jobcan-enhanced th,
   .jobcan-enhanced .table th,
   .jobcan-enhanced .jbc-table th,
@@ -1030,73 +1046,79 @@
     color: var(--secondary-color);
     font-weight: 600;
     text-align: center;
-    padding: 12px 16px;
+    padding: 8px !important;
     border: none;
-    border-right: 1px solid #d0d5dd;
-    border-bottom: 1px solid #d0d5dd;
+    border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
     position: sticky;
     top: 0;
     z-index: 2;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 !important;
   }
-  
-  .jobcan-enhanced th:last-child,
-  .jobcan-enhanced .table th:last-child,
-  .jobcan-enhanced .jbc-table th:last-child {
-    border-right: none;
-  }
-  
+
+  /* Table cell styling */
   .jobcan-enhanced td,
   .jobcan-enhanced .table td,
   .jobcan-enhanced .jbc-table td {
-    padding: 8px;
+    padding: 8px !important;
     border: none;
-    border-right: 1px solid #d0d5dd;
-    border-bottom: 1px solid #d0d5dd;
+    border-bottom: 1px solid var(--border-color);
     color: var(--text-color);
     vertical-align: middle;
+    line-height: 1.2;
+    transition: background-color 0.2s ease;
+    margin: 0 !important;
   }
-  
-  .jobcan-enhanced td:last-child,
-  .jobcan-enhanced .table td:last-child,
-  .jobcan-enhanced .jbc-table td:last-child {
-    border-right: none;
+
+  /* Table row hover effect */
+  .jobcan-enhanced tr:not(.no-hover):hover td {
+    background-color: rgba(0, 120, 255, 0.04);
   }
-  
-  .jobcan-enhanced tr:last-child td,
-  .jobcan-enhanced .table tr:last-child td,
-  .jobcan-enhanced .jbc-table tr:last-child td {
-    border-bottom: none;
+
+  /* Zebra striping for better readability */
+  .jobcan-enhanced tr:nth-child(even) td {
+    background-color: rgba(0, 0, 0, 0.02);
   }
-  
-  /* Ensure borders are visible in all browsers */
-  .jobcan-enhanced .jbc-table-bordered {
-    border-collapse: collapse !important; 
-    border: 1px solid #d0d5dd !important;
-  }
-  
-  .jobcan-enhanced .jbc-table-bordered th,
-  .jobcan-enhanced .jbc-table-bordered td {
-    border: 1px solid #d0d5dd !important;
-  }
-  
-  /* Table row status variants */
+
+  /* Table row status variants with improved colors */
   .jobcan-enhanced .table tr.success td,
   .jobcan-enhanced .jbc-table tr.success td {
-    background-color: rgba(46, 204, 113, 0.1);
+    background-color: rgba(46, 204, 113, 0.08);
+    border-bottom-color: rgba(46, 204, 113, 0.2);
   }
   
   .jobcan-enhanced .table tr.warning td,
   .jobcan-enhanced .jbc-table tr.warning td {
-    background-color: rgba(243, 156, 18, 0.1);
+    background-color: rgba(243, 156, 18, 0.08);
+    border-bottom-color: rgba(243, 156, 18, 0.2);
   }
   
   .jobcan-enhanced .table tr.danger td,
   .jobcan-enhanced .jbc-table tr.danger td {
-    background-color: rgba(231, 76, 60, 0.1);
+    background-color: rgba(231, 76, 60, 0.08);
+    border-bottom-color: rgba(231, 76, 60, 0.2);
+  }
+
+  /* Status row hover effects */
+  .jobcan-enhanced .table tr.success:hover td,
+  .jobcan-enhanced .jbc-table tr.success:hover td {
+    background-color: rgba(46, 204, 113, 0.12);
   }
   
-  /* Table cell alignment */
+  .jobcan-enhanced .table tr.warning:hover td,
+  .jobcan-enhanced .jbc-table tr.warning:hover td {
+    background-color: rgba(243, 156, 18, 0.12);
+  }
+  
+  .jobcan-enhanced .table tr.danger:hover td,
+  .jobcan-enhanced .jbc-table tr.danger:hover td {
+    background-color: rgba(231, 76, 60, 0.12);
+  }
+
+  /* Table cell alignment with improved spacing */
   .jobcan-enhanced .table .text-center,
   .jobcan-enhanced .jbc-table .text-center {
     text-align: center;
@@ -1105,132 +1127,134 @@
   .jobcan-enhanced .table .text-right,
   .jobcan-enhanced .jbc-table .text-right {
     text-align: right;
+    padding-right: 24px;
   }
-  
-  .jobcan-enhanced .table .text-nowrap,
-  .jobcan-enhanced .jbc-table .text-nowrap {
-    white-space: nowrap;
-  }
-  
-  .jobcan-enhanced .table .align-middle,
-  .jobcan-enhanced .jbc-table .align-middle {
-    vertical-align: middle;
-  }
-  
-  /* Links in tables */
+
+  /* Links in tables with improved interaction */
   .jobcan-enhanced .table a,
   .jobcan-enhanced .jbc-table a,
   .jobcan-enhanced .jbc-text-reset {
     color: var(--primary-color);
     text-decoration: none;
-    transition: color 0.2s;
+    transition: all 0.2s ease;
+    padding: 4px 8px;
+    border-radius: 4px;
   }
   
   .jobcan-enhanced .table a:hover,
   .jobcan-enhanced .jbc-table a:hover,
   .jobcan-enhanced .jbc-text-reset:hover {
-    color: #0055b3;
-    text-decoration: underline;
+    color: var(--primary-color);
+    background-color: var(--primary-light);
+    text-decoration: none;
   }
-  
-  /* Time table styling */
+
+  /* Time table specific styling */
   .jobcan-enhanced #time-table,
   .jobcan-enhanced .time-table {
-    margin-top: 16px;
+    margin-top: 12px;
     background-color: var(--card-bg);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
+    border-radius: 12px;
     overflow: hidden;
+    box-shadow: var(--shadow-md);
   }
   
   .jobcan-enhanced #time-table table,
   .jobcan-enhanced .time-table table {
-    width: 100%;
-    border: none;
-    box-shadow: none;
-    margin: 0;
-    border-radius: 0;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
   }
   
   .jobcan-enhanced #time-table th,
   .jobcan-enhanced .time-table th {
     background-color: #f8f9fa;
     color: var(--secondary-color);
-    font-weight: 500;
-    padding: 12px 16px;
-    width: 180px;
+    font-weight: 600;
+    padding: 8px !important;
+    width: 200px;
     text-align: left;
-    border-right: 1px solid #e9ecef;
+    border-right: 1px solid var(--border-color);
     white-space: nowrap;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 !important;
   }
   
   .jobcan-enhanced #time-table td,
   .jobcan-enhanced .time-table td {
-    padding: 12px 16px;
-    color: var(--text-color);
-    font-weight: 400;
-    border-bottom: 1px solid #e9ecef;
+    padding: 8px !important;
+    margin: 0 !important;
+    line-height: 1.2;
   }
-  
-  .jobcan-enhanced #time-table tr:last-child td,
-  .jobcan-enhanced .time-table tr:last-child td,
-  .jobcan-enhanced #time-table tr:last-child th,
-  .jobcan-enhanced .time-table tr:last-child th {
-    border-bottom: none;
-  }
-  
-  .jobcan-enhanced #time-table .jbc-text-sub,
-  .jobcan-enhanced .time-table .jbc-text-sub {
-    color: var(--secondary-color);
-    font-size: 14px;
-  }
-  
-  /* Highlight specific time information */
+
+  /* Highlight time information with improved visibility */
   .jobcan-enhanced #time-table tr:nth-child(4) td,
   .jobcan-enhanced .time-table tr:nth-child(4) td {
     color: var(--primary-color);
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 12px;
   }
-  
-  /* Status indicators in time table */
-  .jobcan-enhanced #time-table tr:last-child td,
-  .jobcan-enhanced .time-table tr:last-child td {
-    font-weight: 600;
+
+  /* Status text styling */
+  .jobcan-enhanced #time-table .jbc-text-sub,
+  .jobcan-enhanced .time-table .jbc-text-sub {
+    color: var(--text-secondary);
+    font-size: 12px;
+    display: block;
   }
-  
-  /* Pagination for tables */
+
+  /* Empty cell styling */
+  .jobcan-enhanced td:empty {
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.02),
+      rgba(0, 0, 0, 0.02) 10px,
+      rgba(0, 0, 0, 0.04) 10px,
+      rgba(0, 0, 0, 0.04) 20px
+    );
+  }
+
+  /* Pagination styling */
   .jobcan-enhanced .pagination {
     display: flex;
-    padding-left: 0;
+    padding: 0;
     list-style: none;
-    border-radius: 0.25rem;
-    margin: 16px 0;
+    border-radius: 8px;
+    margin: 24px 0;
     justify-content: center;
+    gap: 4px;
   }
   
   .jobcan-enhanced .pagination .page-item {
-    margin: 0 2px;
+    margin: 0;
   }
   
   .jobcan-enhanced .pagination .page-link {
     position: relative;
-    display: block;
-    padding: 0.5rem 0.75rem;
-    margin-left: -1px;
-    line-height: 1.25;
-    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 12px;
+    margin: 0;
+    line-height: 1;
+    color: var(--secondary-color);
     background-color: #fff;
     border: 1px solid var(--border-color);
-    border-radius: 4px;
-    transition: all 0.2s;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    font-size: 14px;
   }
   
   .jobcan-enhanced .pagination .page-link:hover {
     z-index: 2;
     color: var(--primary-color);
-    text-decoration: none;
     background-color: var(--primary-light);
-    border-color: var(--border-color);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
   }
   
   .jobcan-enhanced .pagination .page-item.active .page-link {
@@ -1238,25 +1262,45 @@
     color: #fff;
     background-color: var(--primary-color);
     border-color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  .jobcan-enhanced .pagination .page-item.disabled .page-link {
+    color: var(--text-disabled);
+    background-color: #f8f9fa;
+    border-color: var(--border-color);
+    cursor: not-allowed;
+  }
+
+  /* Responsive table adjustments */
+  @media (max-width: 768px) {
+    .jobcan-enhanced .table-responsive {
+      margin-left: -16px;
+      margin-right: -16px;
+      width: calc(100% + 32px);
+      border-radius: 0;
+    }
+
+    .jobcan-enhanced td,
+    .jobcan-enhanced .table td,
+    .jobcan-enhanced .jbc-table td {
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .jobcan-enhanced th,
+    .jobcan-enhanced .table th,
+    .jobcan-enhanced .jbc-table th {
+      padding: 12px;
+      font-size: 12px;
+    }
   }
   
   /* ==========================================================================
      10. Custom Select & Dropdown
      ========================================================================== */
   /* Custom select dropdown styling */
-  .jobcan-enhanced .custom-select-wrapper {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    padding: 6px 10px;
-    background-color: #f9f9f9;
-    transition: all 0.2s ease;
-  }
-  
+ 
   .jobcan-enhanced .custom-select-wrapper:hover {
     border-color: var(--primary-color);
     background-color: #f5f5f5;
@@ -1402,6 +1446,25 @@
     border-left-color: var(--primary-color);
     font-weight: 500;
     color: var(--primary-color);
+  }
+  
+  .jobcan-enhanced .option-item.keyboard-focused {
+    background-color: #f0f7ff;
+    border-left-color: #7fb5ff;
+    position: relative;
+    outline: none;
+  }
+  
+  .jobcan-enhanced .option-item.keyboard-focused:after {
+    content: '';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
   }
   
   .jobcan-enhanced .no-options {
@@ -1591,6 +1654,70 @@
     font-weight: normal;
   }
   
+  /* Man hour sum display styling */
+  .jobcan-enhanced .time-sum-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .jobcan-enhanced .man-hour-sum {
+    font-size: 14px;
+    margin-left: 8px;
+    color: var(--text-secondary);
+    font-weight: normal;
+    opacity: 0.85;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+  }
+  
+  .jobcan-enhanced .man-hour-sum:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Man hour difference display styling with specific styles for shortage and excess */
+  .jobcan-enhanced .man-hour-diff {
+    font-size: 12px;
+    margin-left: 4px;
+    font-weight: normal;
+    padding: 1px 5px;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+    margin-top: 4px;
+    display: inline-block;
+  }
+  
+  /* Style for shortage (not enough hours) */
+  .jobcan-enhanced .man-hour-diff.shortage {
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-left: 2px solid #dc3545;
+    animation: pulse-danger 2s infinite;
+  }
+  
+  /* Style for excess (too many hours) */
+  .jobcan-enhanced .man-hour-diff.excess {
+    color: #fd7e14;
+    background-color: rgba(253, 126, 20, 0.1);
+    border-left: 2px solid #fd7e14;
+    animation: pulse-warning 2s infinite;
+  }
+  
+  @keyframes pulse-warning {
+    0% {
+      opacity: 0.7;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.7;
+    }
+  }
+
   /* Man hour modal table improvements */
   .jobcan-enhanced #man-hour-manage-modal .table,
   .jobcan-enhanced #man-hour-manage-modal .jbc-table {
@@ -1606,13 +1733,18 @@
   .jobcan-enhanced #man-hour-manage-modal .jbc-table select,
   .jobcan-enhanced #man-hour-manage-modal .table input,
   .jobcan-enhanced #man-hour-manage-modal .table select {
-    border: none !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-    height: auto !important;
+
+    padding: 6px 8px !important;
+    margin: 2px !important;
+  }
+  
+  .jobcan-enhanced #man-hour-manage-modal .jbc-table input:focus,
+  .jobcan-enhanced #man-hour-manage-modal .jbc-table select:focus,
+  .jobcan-enhanced #man-hour-manage-modal .table input:focus,
+  .jobcan-enhanced #man-hour-manage-modal .table select:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 2px rgba(0, 120, 255, 0.1) !important;
+    outline: none !important;
   }
   
   /* ==========================================================================
@@ -1766,16 +1898,8 @@
   
   /* Un-match time warning styles */
   .jobcan-enhanced #un-match-time {
-    display: block;
-    background-color: rgba(231, 76, 60, 0.1);
-    color: var(--danger-color);
-    padding: 8px 12px;
-    border-left: 4px solid var(--danger-color);
-    margin: 12px 0;
-    font-weight: 600;
-    border-radius: 4px;
-    animation: pulse-warning 2s infinite;
-    will-change: box-shadow;
+    
+    display: none;
   }
   
   .jobcan-enhanced #un-match-time:empty {
@@ -2134,4 +2258,82 @@
     .jobcan-enhanced .flip-clock-settings-menu {
       width: 180px !important;
     }
+  }
+
+  /* Add column width constraints */
+  .jobcan-enhanced td.align-middle.text-left:has(form[id^="reasons-form"]),
+  .jobcan-enhanced td:has(#edit-reason-2_text),
+  .jobcan-enhanced td:has([id^="edit-reason-"]) {
+    max-width: 240px;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+
+  .jobcan-enhanced td:has([id^="location-"]),
+  .jobcan-enhanced td.align-middle:has(span[id^="location-"]) {
+    max-width: 160px;
+    white-space: normal;
+    word-wrap: break-word;
+  }
+
+  /* Add style for jbc-table-danger to reflect danger status */
+  .jbc-table-danger {
+    background-color: #ffeff2 !important;
+    color: #721c24 !important;
+  }
+
+  .jbc-table-danger td,
+  .jbc-table-danger th {
+    background-color: inherit !important;
+  }
+
+  /* Time suggestion chip styling */
+  .jobcan-enhanced .time-suggestion-chip {
+    position: absolute;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: -2px;
+    margin-left: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 120, 255, 0.3);
+    z-index: 10;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: none;
+  }
+
+  .jobcan-enhanced .time-suggestion-chip:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 120, 255, 0.2);
+  }
+
+  /* Change arrow direction from left to up in time-suggestion-chip */
+  .jobcan-enhanced .time-suggestion-chip::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: -5px;
+    transform: translateY(0);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid var(--primary-light);
+    transition: border-bottom-color 0.2s ease;
+  }
+
+  .jobcan-enhanced .time-suggestion-chip:hover::before {
+    border-bottom-color: var(--primary-color);
+  }
+
+  /* Ensure input positioning is relative for absolute chip positioning */
+  .jobcan-enhanced input.man-hour-input {
+    position: relative;
   }

@@ -18,7 +18,10 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*.jobcan.jp/*"],
+      "matches": [
+        "*://ssl.jobcan.jp/employee/*",
+        "*://id.jobcan.jp/users/sign_in*"
+      ],
       "css": ["styles.css"],
       "js": ["html2canvas.min.js", "content.js"]
     }
